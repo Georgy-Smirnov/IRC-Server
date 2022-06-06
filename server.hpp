@@ -1,23 +1,36 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <iostream>
-#include <cstring>
- #include <unistd.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <arpa/inet.h>
+#include "client.hpp"
+#include "handle_command.hpp"
+#include <vector>
+
+
+struct fd_sets {
+	fd_set read_set;
+	fd_set write_set;
+	int put_in_sets(const std::vector<Client> &vec);
+};
 
 class Server {
-	int			_sock;
-	int			_port;
-	std::string	_password;
+private:
+	int					_port;
+	std::string			_password;
+	fd_sets				_sets;
+	std::vector<Client> _clients;
 public:
-	Server(unsigned int port, std::string password);
+	Server(int port, std::string password);
 	~Server();
 
 	void start();
+	void work();
+
+	int size() const;
+private:
+	void sort_out(int max_fd);
+	void new_client();
+	void old_client(int i);
+
 };
 
 #endif
@@ -25,3 +38,5 @@ public:
 // 1 socket-server create error
 // 2 socket-server bind error
 // 3 server listen error
+// 4 select error
+// 5 send error

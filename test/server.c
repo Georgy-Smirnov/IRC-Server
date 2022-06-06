@@ -30,26 +30,26 @@ int main()
 
     listen(listener, 1);
 
-	while (1)
-	{
-    	sock = accept(listener, NULL, NULL);
-    	if(sock < 0)
-    	{
-    	    perror("accept");
-    	    exit(3);
-    	}
-		printf("New user add:\n");
-    	while(1)
-    	{
-    	    bytes_read = recv(sock, buf, 1024, 0);
-    	    if(bytes_read <= 0) break;
-			buf[bytes_read] = 0;
-    	    send(sock, buf, bytes_read, 0);
-			printf("%s\n", buf);
-    	}
-		printf("User left!\n");
-    	close(sock);
-	}
+	// while (1)
+	// {
+    // 	sock = accept(listener, NULL, NULL);
+    // 	if(sock < 0)
+    // 	{
+    // 	    perror("accept");
+    // 	    exit(3);
+    // 	}
+	// 	printf("New user add:\n");
+    // 	while(1)
+    // 	{
+    // 	    bytes_read = recv(sock, buf, 1024, 0);
+    // 	    if(bytes_read <= 0) break;
+	// 		buf[bytes_read] = 0;
+    // 	    send(sock, buf, bytes_read, 0);
+	// 		printf("%s\n", buf);
+    // 	}
+	// 	printf("User left!\n");
+    // 	close(sock);
+	// }
 	
 
     
