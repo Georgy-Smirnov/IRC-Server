@@ -5,6 +5,7 @@
 #include "handle_command.hpp"
 #include <vector>
 
+#define BUFFER_SIZE 1024
 
 struct fd_sets {
 	fd_set read_set;
@@ -13,6 +14,8 @@ struct fd_sets {
 };
 
 class Server {
+public:
+	typedef std::vector<Client>::iterator iterator;
 private:
 	int					_port;
 	std::string			_password;
@@ -29,7 +32,7 @@ public:
 private:
 	void sort_out(int max_fd);
 	void new_client();
-	void old_client(int i);
+	void old_client(iterator &i);
 
 };
 
@@ -40,3 +43,4 @@ private:
 // 3 server listen error
 // 4 select error
 // 5 send error
+// 6 recv error

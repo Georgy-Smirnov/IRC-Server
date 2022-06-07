@@ -29,9 +29,9 @@ int main()
         exit(2);
     }
 
-    int status = send(sock, message, sizeof(message), 0);
-	if (status != sizeof(message))
-		printf("ERROR\n");
+    // int status = send(sock, message, sizeof(message), 0);
+	// if (status != sizeof(message))
+	// 	printf("ERROR\n");
     // recv(sock, buf, sizeof(message), 0);
     
     printf("|%s|\n", buf);

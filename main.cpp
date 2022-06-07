@@ -14,8 +14,8 @@ int main(int argc, const char **argv) {
 	Server serv(port, argv[2]);
 	serv.start();
 	while (1) {
-	serv.work();
-	std::cout << "SIZE: " << serv.size() << std::endl;
+		serv.work();
+		// std::cout << "SIZE: " << serv.size() << std::endl;
 	}
 	std::cout << "Done!\n";
 }

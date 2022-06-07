@@ -1,17 +1,17 @@
 #include "handle_command.hpp"
 
-Handle_command::Handle_command(std::string buf, std::vector<Client> &clients, int i) : _command(buf), _clients(clients), _fd(i) {
+Handle_command::Handle_command(std::string &buf, std::vector<Client> &clients, iterator i) : _command(buf), _clients(clients), _fd(i->get_socket()) {
 	_it = _clients.begin();
-	while (_it->get_socket() != i)
+	while (_it->get_socket() != i->get_socket())
 		++_it;
 }
 
 int Handle_command::check_password(std::string pass) {
-	if (_it->get_login())
+	if (_it->login())
 		return 1;
-	else if (pass == _command)
+	else if (pass == _command) {
+		_it->log_in();
 		return 1;
-	std::cout << pass << " " << _command << std::endl;
-	std::cout << pass.length() << " " << _command.length() << std::endl;
+	}
 	return 0;
 }
