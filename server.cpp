@@ -75,6 +75,7 @@ void Server::new_client() {
 	if (new_socket == -1)
 		exit(5);
 	_clients.push_back(Client(new_socket, client));
+	send(new_socket, ":Welcome to the Internet Relay Network lol!lol@lol\r\n", 52, 0);
 	std::cout << "New client: IP " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
 
 }
@@ -100,6 +101,8 @@ void Server::old_client(iterator &i) {
 	// Handle_command handle(message, _clients, i);
 	// if (!handle.check_password(_password))
 	// 	send(i->get_socket(), "NEED REGISTR!\n", 14, 0);
+	
+	
 	std::cout << message << std::endl;
 }
 
