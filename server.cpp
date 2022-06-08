@@ -41,6 +41,8 @@ void Server::start() {
 	if (status == -1)
 		exit(3);
 	_clients.push_back(Client(sock, serv));
+	_clients[0].log_in();
+	_clients[0].put_nick(SERVER_NAME);
 }
 
 void Server::work() {
@@ -75,14 +77,13 @@ void Server::new_client() {
 	if (new_socket == -1)
 		exit(5);
 	_clients.push_back(Client(new_socket, client));
-	send(new_socket, ":Welcome to the Internet Relay Network lol!lol@lol\r\n", 52, 0);
 	std::cout << "New client: IP " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
 
 }
 
 void Server::old_client(iterator &i) {
 	char buf[BUFFER_SIZE];
-
+	std::memset(buf, 0, BUFFER_SIZE);
 	int count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0);
 	if (count_bytes == 0) {
 		close(i->get_socket());
@@ -98,14 +99,19 @@ void Server::old_client(iterator &i) {
 		message.back() = 0;
 	else
 		message.push_back(0);
-	// Handle_command handle(message, _clients, i);
-	// if (!handle.check_password(_password))
-	// 	send(i->get_socket(), "NEED REGISTR!\n", 14, 0);
-	
-	
-	std::cout << message << std::endl;
+	Handle_command handle(i, message, this);
+	message = handle.get_answer();
+	std::cout << "Message: " << message << std::endl;
+	count_bytes = send(i->get_socket(), (const void *)(message.c_str()), message.length(), 0);
+	if (count_bytes == 0) {
+		exit(7);
+	}
 }
 
 int Server::size() const {
 	return _clients.size();
+}
+
+const std::string Server::get_name_server() const {
+	return _clients[0].get_nick();
 }

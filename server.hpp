@@ -6,6 +6,7 @@
 #include <vector>
 
 #define BUFFER_SIZE 1024
+#define SERVER_NAME "Kjaco's server"
 
 struct fd_sets {
 	fd_set read_set;
@@ -17,10 +18,11 @@ class Server {
 public:
 	typedef std::vector<Client>::iterator iterator;
 private:
-	int					_port;
-	std::string			_password;
-	fd_sets				_sets;
-	std::vector<Client> _clients;
+	int							_port;
+	std::string					_password;
+	fd_sets						_sets;
+	std::vector<Client> 		_clients;
+	std::vector<std::string>	_nicks;
 public:
 	Server(int port, std::string password);
 	~Server();
@@ -28,6 +30,7 @@ public:
 	void start();
 	void work();
 
+	const std::string get_name_server() const;
 	int size() const;
 private:
 	void sort_out(int max_fd);
@@ -42,5 +45,6 @@ private:
 // 2 socket-server bind error
 // 3 server listen error
 // 4 select error
-// 5 send error
+// 5 accept error
 // 6 recv error
+// 7 send error

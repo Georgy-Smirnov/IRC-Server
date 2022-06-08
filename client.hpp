@@ -17,14 +17,20 @@ private:
 	int			_socket;
 	addrinfov4	_addrinfo;
 	bool		_login;
-	std::string	_name;
+	bool		_password;
+	std::string	_nick;
+	std::string _name;
 	std::string	_user;
 public:
 	Client(int socket, addrinfov4 c) : _socket(socket), _addrinfo(c), _login(0), _name(std::string()), _user(std::string()) {}
 	int get_socket() const { return _socket; }
+	
 	bool login() const { return _login; }
 	void log_in() { _login = true; }
 	void log_out() { _login = false; }
+
+	void put_nick(std::string n) { _nick = n; }
+	const std::string get_nick() const { return _nick; }
 };
 
 #endif
