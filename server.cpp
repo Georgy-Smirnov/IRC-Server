@@ -85,7 +85,6 @@ void Server::old_client(iterator &i) {
 	char buf[BUFFER_SIZE];
 	std::memset(buf, 0, BUFFER_SIZE);
 	int count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0);
-	std::cout << ">" << buf << "<\n";
 	if (count_bytes == 0) {
 		close(i->get_socket());
 		_clients.erase(i);
@@ -96,6 +95,8 @@ void Server::old_client(iterator &i) {
 		exit(6);
 	}
 	std::string message = buf;
+	if (message.back() == '\n')
+		message.pop_back();
 	while (message.size()) {
 		std::string tmp = message.substr(0, message.find("\r\n"));
 		message.erase(0, tmp.length() + 2);

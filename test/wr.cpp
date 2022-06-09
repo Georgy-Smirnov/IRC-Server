@@ -7,14 +7,12 @@
 #include <iostream>
 
 int main() {
-	char buf[1];
-	std::string str;
-	int sz;
-	int fd = open("2", O_CREAT, S_IRWXU, O_RDONLY);
-	while ((sz = read(fd, buf, 1)) > 0) {
-		if (sz != 2)
-			buf[sz] = 0;
-		str += buf;
-	}
-	std::cout << str <<std::endl;
+	std::string str = "hi\0";
+	std::string str1 = "hi";
+	if (str != str1)
+		std::cout << "OK\n";
+	else
+		std::cout << "NO\n";
+	std::cout << str << " " << str.length() <<std::endl;
+	std::cout << str1 << " " << str1.length() <<std::endl;
 }
