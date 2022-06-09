@@ -2,12 +2,10 @@
 
 int fd_sets::put_in_sets(const std::vector<Client> &vec) {
 	FD_ZERO(&read_set);
-	FD_ZERO(&write_set);
 	int max = 0;
 	std::vector<Client>::const_iterator first = vec.begin();
 	while (first != vec.end()) {
 		FD_SET(first->get_socket(), &read_set);
-		// FD_SET(first->get_socket(), &write_set);
 		if (first->get_socket() > max)
 			max = first->get_socket();
 		++first;
@@ -47,7 +45,7 @@ void Server::start() {
 
 void Server::work() {
 	int max_fd = _sets.put_in_sets(_clients);
-	int status = select(++max_fd, &(_sets.read_set), &(_sets.write_set), NULL, NULL);
+	int status = select(++max_fd, &(_sets.read_set), NULL, NULL, NULL);
 	if (status == -1)
 		exit(4);
 	sort_out(max_fd);
@@ -86,8 +84,7 @@ void Server::old_client(iterator &i) {
 	std::memset(buf, 0, BUFFER_SIZE);
 	int count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0);
 	if (count_bytes == 0) {
-		close(i->get_socket());
-		_clients.erase(i);
+		exit_client(i);
 		std::cout << "Bye!\n";
 		return;
 	}
@@ -95,8 +92,11 @@ void Server::old_client(iterator &i) {
 		exit(6);
 	}
 	std::string message = buf;
-	if (message.back() == '\n')
+	if (message.back() == '\n') {
 		message.pop_back();
+		if (message.back() == '\r')
+			message.pop_back();
+	}
 	while (message.size()) {
 		std::string tmp = message.substr(0, message.find("\r\n"));
 		message.erase(0, tmp.length() + 2);
@@ -131,6 +131,13 @@ const int Server::get_socket_client(std::string& name) const {
 			return i->get_socket();
 	}
 	return 0;
+}
+
+void Server::exit_client(iterator& client) {
+	if (client->get_nick().size() != 0)
+		_nicks.erase(std::find(_nicks.begin(), _nicks.end(), client->get_nick()));
+	close(client->get_socket());
+	_clients.erase(client);
 }
 
 int Server::size() const {

@@ -8,10 +8,11 @@
 
 #define BUFFER_SIZE 1024
 #define SERVER_NAME "Kjaco's_server"
+#define DELAY 10
 
 struct fd_sets {
 	fd_set read_set;
-	fd_set write_set;
+	// fd_set write_set;
 	int put_in_sets(const std::vector<Client> &vec);
 };
 
@@ -38,6 +39,8 @@ public:
 
 	const std::string get_password() const;
 	const int get_socket_client(std::string& name) const;
+
+	void exit_client(iterator& client);
 
 	int size() const;
 private:

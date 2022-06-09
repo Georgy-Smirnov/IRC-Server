@@ -41,10 +41,13 @@ void Handle_command::handle_exec() {
 	if (_it->login() == 0) {
 		std::string tmp = do_for_login();
 		int count_bytes = send(_it->get_socket(), (const void *)(tmp.c_str()), tmp.length(), 0);
-		if (count_bytes == -1 || tmp == "-1") {
+		if (count_bytes == -1) {
 			exit(7);
+			return;
 		}
-		return;
+		if (tmp == "Password incorrect\n") {
+			_server->exit_client(_it);
+		}
 	}
 	else
 		execute();
@@ -71,8 +74,6 @@ std::string Handle_command::do_for_login() {
 		return (welcome());
 	}
 	else if (_command == "PASS") {
-		std::string s = _parametrs[0];
-		std::string q = _server->get_password();
 		if (_parametrs.size() != 1)
 			return put_in_answer(" 461  PASS :Not enough parameters\r\n");
 		if (_parametrs[0] != _server->get_password())
@@ -113,7 +114,7 @@ std::string Handle_command::welcome() {
 
 std::string Handle_command::put_in_answer(std::string message) {
 	if (message.size() == 0)
-		return "-1";
+		return "Password incorrect\n";
 	std::string answer = ":";
 	answer += _server->get_name_server();
 	answer += message;
@@ -150,7 +151,7 @@ void Handle_command::send_message(int sock, std::string str) {
 }
 
 std::string Handle_command::create_priv_message(std::string& name, std::string& mes, bool flag) {
-	std::string rezult = ":" + _it->str_for_irc() + " ";
+	std::string rezult = ":" + _it->str_for_irc();
 	if (flag == 0)
 		rezult += " NOTICE ";
 	else
@@ -160,7 +161,7 @@ std::string Handle_command::create_priv_message(std::string& name, std::string& 
 }
 
 void Handle_command::quit() {
-
+	_server->exit_client(_it);
 }
 
 void Handle_command::privmsg(bool flag) {
@@ -184,6 +185,20 @@ void Handle_command::invite() {}
 
 void Handle_command::kick() {}
 
-void Handle_command::ping() {}
+void Handle_command::ping() {
+	typedef std::vector<std::string>::iterator iter;
+	std::string answer = "PONG ";
+	for (iter i = _parametrs.begin(); i < _parametrs.end(); ++i) {
+		answer += *i + " ";
+	}
+	answer.pop_back();
+	answer += "\r\n";
+	send_message(_it->get_socket(), answer);
+}
 
-void Handle_command::pong() {}
+void Handle_command::pong() {
+	if (_parametrs.size() != 1)
+		return _server->exit_client(_it);
+	if (_parametrs[0] != _server->get_name_server())
+		return _server->exit_client(_it);
+}	
