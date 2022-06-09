@@ -85,6 +85,7 @@ void Server::old_client(iterator &i) {
 	char buf[BUFFER_SIZE];
 	std::memset(buf, 0, BUFFER_SIZE);
 	int count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0);
+	std::cout << ">" << buf << "<\n";
 	if (count_bytes == 0) {
 		close(i->get_socket());
 		_clients.erase(i);
@@ -95,23 +96,40 @@ void Server::old_client(iterator &i) {
 		exit(6);
 	}
 	std::string message = buf;
-	if (message.back() == '\n')
-		message.back() = 0;
-	else
-		message.push_back(0);
-	Handle_command handle(i, message, this);
-	message = handle.get_answer();
-	std::cout << "Message: " << message << std::endl;
-	count_bytes = send(i->get_socket(), (const void *)(message.c_str()), message.length(), 0);
-	if (count_bytes == 0) {
-		exit(7);
+	while (message.size()) {
+		std::string tmp = message.substr(0, message.find("\r\n"));
+		message.erase(0, tmp.length() + 2);
+		std::cout << "Message: " << tmp << std::endl;
+		Handle_command handle(i, tmp, this);
+		tmp = handle.get_answer();
+		count_bytes = send(i->get_socket(), (const void *)(tmp.c_str()), tmp.length(), 0);
+		if (count_bytes == -1 || tmp == "-1") {
+			exit(7);
+		}
 	}
+
+}
+
+const std::string Server::get_name_server() const {
+	return _clients[0].get_nick();
+}
+
+bool Server::find_nick(std::string& str) const {
+	if (std::find(_nicks.begin(), _nicks.end(), str) == _nicks.end())
+		return false;
+	return true;
+}
+
+void Server::put_nick(std::string& str) {
+	_nicks.push_back(str);
+}
+
+const std::string Server::get_password() const {
+	return _password;
 }
 
 int Server::size() const {
 	return _clients.size();
 }
 
-const std::string Server::get_name_server() const {
-	return _clients[0].get_nick();
-}
+

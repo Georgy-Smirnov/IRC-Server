@@ -4,9 +4,10 @@
 #include "client.hpp"
 #include "handle_command.hpp"
 #include <vector>
+#include <algorithm>
 
 #define BUFFER_SIZE 1024
-#define SERVER_NAME "Kjaco's server"
+#define SERVER_NAME "Kjaco's_server"
 
 struct fd_sets {
 	fd_set read_set;
@@ -31,6 +32,11 @@ public:
 	void work();
 
 	const std::string get_name_server() const;
+	bool find_nick(std::string& str) const;
+	void put_nick(std::string& str);
+
+	const std::string get_password() const;
+
 	int size() const;
 private:
 	void sort_out(int max_fd);
