@@ -18,6 +18,7 @@ struct fd_sets {
 class Server {
 public:
 	typedef std::vector<Client>::iterator iterator;
+	typedef std::vector<Client>::const_iterator citerator;
 private:
 	int							_port;
 	std::string					_password;
@@ -36,6 +37,7 @@ public:
 	void put_nick(std::string& str);
 
 	const std::string get_password() const;
+	const int get_socket_client(std::string& name) const;
 
 	int size() const;
 private:

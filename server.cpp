@@ -102,11 +102,7 @@ void Server::old_client(iterator &i) {
 		message.erase(0, tmp.length() + 2);
 		std::cout << "Message: " << tmp << std::endl;
 		Handle_command handle(i, tmp, this);
-		tmp = handle.get_answer();
-		count_bytes = send(i->get_socket(), (const void *)(tmp.c_str()), tmp.length(), 0);
-		if (count_bytes == -1 || tmp == "-1") {
-			exit(7);
-		}
+		handle.handle_exec();
 	}
 
 }
@@ -127,6 +123,14 @@ void Server::put_nick(std::string& str) {
 
 const std::string Server::get_password() const {
 	return _password;
+}
+
+const int Server::get_socket_client(std::string& name) const {
+	for (citerator i = _clients.begin(); i < _clients.end(); ++i) {
+		if (i->get_nick() == name)
+			return i->get_socket();
+	}
+	return 0;
 }
 
 int Server::size() const {

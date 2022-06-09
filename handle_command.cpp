@@ -37,12 +37,17 @@ Handle_command::Handle_command(std::vector<Client>::iterator &i, std::string com
 	std::cout << "=============================================\n";
 }
 
-std::string Handle_command::get_answer() {
-	if (_it->login() == 0)
-		return do_for_login();
-	else {
-		return execute();
+void Handle_command::handle_exec() {
+	if (_it->login() == 0) {
+		std::string tmp = do_for_login();
+		int count_bytes = send(_it->get_socket(), (const void *)(tmp.c_str()), tmp.length(), 0);
+		if (count_bytes == -1 || tmp == "-1") {
+			exit(7);
+		}
+		return;
 	}
+	else
+		execute();
 }
 
 std::string Handle_command::do_for_login() {
@@ -79,13 +84,29 @@ std::string Handle_command::do_for_login() {
 	return put_in_answer(" 451  :You have not registered\r\n");
 }
 
+std::string Handle_command::create_welc_message() {
+	std::string rezult = ":" + _server->get_name_server() + " 001 ";
+	rezult += _it->get_nick() + " :Welcome to the Internet Relay Network ";
+	rezult += _it->str_for_irc() + "\r\n";
+	return rezult;
+}
+
+void Handle_command::send_motd() {
+	send_message(_it->get_socket(), put_in_answer(" 375  : -" + _server->get_name_server() + "- Message of the day -\r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : HELLO, WORLD!!!\r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : WELCOME TO IRC SERVER\r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 376  : End of /MOTD command\r\n"));		
+}
+
 std::string Handle_command::welcome() {
 	if (_it->get_nick().size() != 0 && _it->get_password() && _it->get_real_name().size() != 0) {
 		_it->log_in();
-		std::string answer =	put_in_answer(" 375  : -" + _server->get_name_server() + "- Message of the day -\r\n") +
-								put_in_answer(" 372  : Welcome!!!\r\n") +
-								put_in_answer(" 376  : End of /MOTD command\r\n");
-		return answer;
+		send_message(_it->get_socket(), create_welc_message());
+		send_motd();
 	}
 	return ("");
 }
@@ -99,65 +120,70 @@ std::string Handle_command::put_in_answer(std::string message) {
 	return answer;
 }
 
-std::string Handle_command::execute() {
+void Handle_command::execute() {
 	if (_command == "QUIT")
-		return quit();
+		quit();
 	else if (_command == "NOTICE")
-		return notice();
+		privmsg(0);
 	else if (_command == "PRIVMSG")
-		return privmsg();
+		privmsg(1);
 	else if (_command == "JOIN")
-		return join();
+		join();
 	else if (_command == "INVITE")
-		return invite();
+		invite();
 	else if (_command == "KICK") 
-		return kick();
+		kick();
 	else if (_command == "PING") 
-		return ping();
+		ping();
 	else if (_command == "PONG") 
-		return pong();
+		pong();
+	else {
+		send_message(_it->get_socket(), put_in_answer(_command + " :Unknown command\r\n"));
+	
+	}
+}
+
+void Handle_command::send_message(int sock, std::string str) {
+	int count_bytes = send(sock, str.c_str(), str.length(), 0);
+	if (count_bytes == -1)
+		exit(7);
+}
+
+std::string Handle_command::create_priv_message(std::string& name, std::string& mes, bool flag) {
+	std::string rezult = ":" + _it->str_for_irc() + " ";
+	if (flag == 0)
+		rezult += " NOTICE ";
 	else
-		return put_in_answer(_command + " :Unknown command\r\n");
+		rezult += " PRIVMSG ";
+	rezult += name + " : " + mes + "\r\n";
+	return rezult;
 }
 
-std::string Handle_command::quit() {
-	return "1";
+void Handle_command::quit() {
+
 }
 
-std::string Handle_command::notice() {
-	return "1";
+void Handle_command::privmsg(bool flag) {
+	if (_parametrs.size() < 2) {
+		send_message(_it->get_socket(), put_in_answer(" 461  PASS :Not enough parameters\r\n"));
+		return;
+	}
+	for (size_t i = 0; i < _parametrs.size() - 1; ++i) {
+		if (!_server->find_nick(_parametrs[i])) {
+			send_message(_it->get_socket(), put_in_answer(" 401 " + _parametrs[i] + " :No such nick/channel\r\n"));
+			return;
+		}
+		std::string answer = create_priv_message(_parametrs[i], _parametrs[_parametrs.size() - 1], flag);
+		send_message(_server->get_socket_client(_parametrs[i]), answer);
+	}
 }
 
-std::string Handle_command::privmsg() {
-	// if (_parametrs.size() < 2)
-	// 	return put_in_answer(" 461  PASS :Not enough parameters\r\n");
-	// std::vector<std::string>::iterator it = _parametrs.begin();
-	// std::string answer = "";
-	// while (it < _parametrs.end() - 2) {
-	// 	if (!_server->find_nick(*it))
-	// 		return put_in_answer(" 401 " + *it + " :No such nick/channel\r\n");
-	// 	answer += put_in_answer("PRIVMSG" + *it + " : " + _parametrs.back() + "\r\n");
-	// }
-	// return answew
-	return "1";
-}
+void Handle_command::join() {}
 
-std::string Handle_command::join() {
-	return "1";
-}
+void Handle_command::invite() {}
 
-std::string Handle_command::invite() {
-	return "1";
-}
+void Handle_command::kick() {}
 
-std::string Handle_command::kick() {
-	return "1";
-}
+void Handle_command::ping() {}
 
-std::string Handle_command::ping() {
-	return "1";
-}
-
-std::string Handle_command::pong() {
-	return "1";
-}
+void Handle_command::pong() {}

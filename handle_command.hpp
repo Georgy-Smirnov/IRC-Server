@@ -18,22 +18,22 @@ class Handle_command {
 	std::string do_for_login(void);
 	std::string put_in_answer(std::string message);
 	std::string welcome(void);
-	std::string execute(void);
-	std::string quit(void);
-	std::string notice(void);
-	std::string privmsg(void);
-	std::string join(void);
-	std::string invite(void);
-	std::string kick(void);
-	std::string ping(void);
-	std::string pong(void);
+	void execute(void);
+	void send_message(int sock, std::string str);
+	void quit(void);
+	void privmsg(bool flag); // NOTICE=0, PRIVMSG=1
+	void join(void);
+	void invite(void);
+	void kick(void);
+	void ping(void);
+	void pong(void);
+
+	std::string create_priv_message(std::string& name, std::string& mes, bool flag);
+	std::string create_welc_message();
+	void send_motd();
 public:
 	Handle_command(std::vector<Client>::iterator &i, std::string comm, Server* s);
-	std::string get_answer(void);
+	void handle_exec(void);
 };
 
 #endif
-
-//asd
-//asddas
-//qwe

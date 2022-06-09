@@ -35,6 +35,12 @@ public:
 	const bool get_password() const { return _password; }
 	const std::string get_nick() const { return _nick; }
 	const std::string get_real_name() const { return _real_name; }
+	const std::string get_ip_address() const { return inet_ntoa(_addrinfo.sin_addr); }
+	const std::string str_for_irc() const {
+		std::string rezult = _nick + "!" + _real_name;
+		rezult += "@" + get_ip_address();
+		return rezult;
+	}
 };
 
 #endif
