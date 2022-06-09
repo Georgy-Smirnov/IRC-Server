@@ -3,7 +3,7 @@
 
 #include "client.hpp"
 #include "handle_command.hpp"
-#include <vector>
+#include "channel.hpp"
 #include <algorithm>
 
 #define BUFFER_SIZE 1024
@@ -12,7 +12,6 @@
 
 struct fd_sets {
 	fd_set read_set;
-	// fd_set write_set;
 	int put_in_sets(const std::vector<Client> &vec);
 };
 
@@ -26,6 +25,8 @@ private:
 	fd_sets						_sets;
 	std::vector<Client> 		_clients;
 	std::vector<std::string>	_nicks;
+	std::vector<Channel>		_channels;
+	std::vector<std::string>	_chan;
 public:
 	Server(int port, std::string password);
 	~Server();
