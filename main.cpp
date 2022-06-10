@@ -15,7 +15,5 @@ int main(int argc, const char **argv) {
 	serv.start();
 	while (1) {
 		serv.work();
-		// std::cout << "SIZE: " << serv.size() << std::endl;
 	}
-	std::cout << "Done!\n";
 }

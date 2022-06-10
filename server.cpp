@@ -1,17 +1,6 @@
 #include "server.hpp"
 
-int fd_sets::put_in_sets(const std::vector<Client> &vec) {
-	FD_ZERO(&read_set);
-	int max = 0;
-	std::vector<Client>::const_iterator first = vec.begin();
-	while (first != vec.end()) {
-		FD_SET(first->get_socket(), &read_set);
-		if (first->get_socket() > max)
-			max = first->get_socket();
-		++first;
-	}
-	return max;
-}
+// PUBLIC MEMBERS
 
 Server::Server(int port, std::string password) : _port(port), _password(password) {}
 
@@ -31,6 +20,7 @@ void Server::start() {
 	if (sock == -1)
 		exit(1);
 	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
+
 	int status = bind(sock, reinterpret_cast<const sockaddr *>(&serv), sizeof(serv));
 	if (status == -1)
 		exit(2);
@@ -38,25 +28,35 @@ void Server::start() {
 	status = listen(sock, 10); // count?
 	if (status == -1)
 		exit(3);
-	_clients.push_back(Client(sock, serv));
-	_clients[0].log_in();
-	_clients[0].put_nick(SERVER_NAME);
+	reserve_put_vectors(sock, serv);
+}
+
+int Server::put_in_set(fd_set* read_set) {
+	FD_ZERO(read_set);
+	int max = 0;
+	client_const_it first = _clients.begin();
+	while (first != _clients.end()) {
+		FD_SET(first->get_socket(), read_set);
+		if (first->get_socket() > max)
+			max = first->get_socket();
+		++first;
+	}
+	return max;
 }
 
 void Server::work() {
-	int max_fd = _sets.put_in_sets(_clients);
-	int status = select(++max_fd, &(_sets.read_set), NULL, NULL, NULL);
-	if (status == -1)
-		exit(4);
-	sort_out(max_fd);
-}
-
-void Server::sort_out(int max_fd) {
+	fd_set read_set;
 	struct sockaddr_in _this, client;
 	socklen_t size = sizeof(client);
 
-	for (iterator it = _clients.begin(); it < _clients.end(); ++it) {
-		if (FD_ISSET(it->get_socket(), &_sets.read_set)) {
+	int max_fd = put_in_set(&read_set);
+	int status = select(++max_fd, &(read_set), NULL, NULL, NULL);
+	if (status == -1) {
+		exit(4);	
+	}
+
+	for (client_it it = _clients.begin(); it < _clients.end(); ++it) {
+		if (FD_ISSET(it->get_socket(), &read_set)) {
 			if (it->get_socket() == _clients[0].get_socket()) {
 				new_client();
 				break;
@@ -65,6 +65,77 @@ void Server::sort_out(int max_fd) {
 				old_client(it);
 		}
 	}
+}
+
+
+const std::string Server::get_name_server() const {
+	return _clients[0].get_nick();
+}
+
+bool Server::find_nick(const std::string& str) const {
+	for (str_pointer_it i = _nicks.begin(); i < _nicks.end(); ++i) {
+		if (*(*i) == str)
+			return true;
+	}
+	return false;
+}
+
+void Server::put_nick(const std::string& str) {
+	_nicks.push_back(&str);
+}
+
+bool Server::find_chan(const std::string& str) const {
+	for (str_pointer_it i = _chan.begin(); i < _chan.end(); ++i) {
+		if (*(*i) == str)
+			return true;
+	}
+	return false;
+}
+
+void Server::put_chan(const std::string& str) {
+	_chan.push_back(&str);
+}
+
+const std::string Server::get_password() const {
+	return _password;
+}
+
+const int Server::get_socket_client(std::string& name) const {
+	for (client_const_it i = _clients.begin(); i < _clients.end(); ++i) {
+		if (i->get_nick() == name)
+			return i->get_socket();
+	}
+	return 0;
+}
+
+void Server::exit_client(client_it& client) {
+	if (client->get_nick().size() != 0) {
+		for (str_pointer_it i = _nicks.begin(); i < _nicks.end(); ++i) {
+			if (**i == client->get_nick()) {
+				_nicks.erase(i);
+				break;
+			}
+		}
+	}
+	close(client->get_socket());
+	_clients.erase(client);
+}
+
+//PRIVATE MEMBERS:
+
+void Server::reserve_put_vectors(int& sock, struct sockaddr_in& serv) {
+	try {
+		_clients.reserve(COUNT_CLIENTS);
+		_nicks.reserve(COUNT_CLIENTS);
+		_channels.reserve(COUNT_CHANNEL);
+		_chan.reserve(COUNT_CHANNEL);
+	}
+	catch(const std::exception&) {
+		exit(8);
+	}	
+	_clients.push_back(Client(sock, serv));
+	_clients[0].log_in();
+	_clients[0].put_nick(SERVER_NAME);
 }
 
 void Server::new_client() {
@@ -79,7 +150,7 @@ void Server::new_client() {
 
 }
 
-void Server::old_client(iterator &i) {
+void Server::old_client(client_it &i) {
 	char buf[BUFFER_SIZE];
 	std::memset(buf, 0, BUFFER_SIZE);
 	int count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0);
@@ -104,44 +175,4 @@ void Server::old_client(iterator &i) {
 		Handle_command handle(i, tmp, this);
 		handle.handle_exec();
 	}
-
 }
-
-const std::string Server::get_name_server() const {
-	return _clients[0].get_nick();
-}
-
-bool Server::find_nick(std::string& str) const {
-	if (std::find(_nicks.begin(), _nicks.end(), str) == _nicks.end())
-		return false;
-	return true;
-}
-
-void Server::put_nick(std::string& str) {
-	_nicks.push_back(str);
-}
-
-const std::string Server::get_password() const {
-	return _password;
-}
-
-const int Server::get_socket_client(std::string& name) const {
-	for (citerator i = _clients.begin(); i < _clients.end(); ++i) {
-		if (i->get_nick() == name)
-			return i->get_socket();
-	}
-	return 0;
-}
-
-void Server::exit_client(iterator& client) {
-	if (client->get_nick().size() != 0)
-		_nicks.erase(std::find(_nicks.begin(), _nicks.end(), client->get_nick()));
-	close(client->get_socket());
-	_clients.erase(client);
-}
-
-int Server::size() const {
-	return _clients.size();
-}
-
-

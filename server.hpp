@@ -8,25 +8,23 @@
 
 #define BUFFER_SIZE 1024
 #define SERVER_NAME "Kjaco's_server"
-#define DELAY 10
-
-struct fd_sets {
-	fd_set read_set;
-	int put_in_sets(const std::vector<Client> &vec);
-};
+#define COUNT_CLIENTS 20
+#define COUNT_CHANNEL 10
 
 class Server {
 public:
-	typedef std::vector<Client>::iterator iterator;
-	typedef std::vector<Client>::const_iterator citerator;
+	typedef std::vector<Client>::iterator client_it;
+	typedef std::vector<Client>::const_iterator client_const_it;
+	typedef std::vector<const std::string*>::const_iterator str_pointer_it;
+	typedef std::vector<Channel>::iterator channel_it;
+	typedef std::vector<Channel>::const_iterator channel_const_it;	
 private:
-	int							_port;
-	std::string					_password;
-	fd_sets						_sets;
-	std::vector<Client> 		_clients;
-	std::vector<std::string>	_nicks;
-	std::vector<Channel>		_channels;
-	std::vector<std::string>	_chan;
+	int								_port;
+	const std::string				_password;
+	std::vector<Client> 			_clients;
+	std::vector<const std::string*>	_nicks;
+	std::vector<Channel>			_channels;
+	std::vector<const std::string*>	_chan;
 public:
 	Server(int port, std::string password);
 	~Server();
@@ -35,19 +33,23 @@ public:
 	void work();
 
 	const std::string get_name_server() const;
-	bool find_nick(std::string& str) const;
-	void put_nick(std::string& str);
+	bool find_nick(const std::string& str) const;
+	void put_nick(const std::string& str);
+
+	bool find_chan(const std::string& str) const;
+	void put_chan(const std::string& str);
 
 	const std::string get_password() const;
 	const int get_socket_client(std::string& name) const;
 
-	void exit_client(iterator& client);
+	void create_channels(std::string &name, client_const_it it);
 
-	int size() const;
+	void exit_client(client_it& client);
 private:
-	void sort_out(int max_fd);
+	void reserve_put_vectors(int& sock, struct sockaddr_in& serv);
 	void new_client();
-	void old_client(iterator &i);
+	void old_client(client_it &i);
+	int put_in_set(fd_set* read_set);
 
 };
 
@@ -60,3 +62,4 @@ private:
 // 5 accept error
 // 6 recv error
 // 7 send error
+// 8 memory allocate error

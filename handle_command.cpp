@@ -62,7 +62,7 @@ std::string Handle_command::do_for_login() {
 		if (_it->get_real_name().size() != 0 && !_it->get_password())
 			return put_in_answer("");
 		_it->put_nick(_parametrs[0]);
-		_server->put_nick(_parametrs[0]);
+		_server->put_nick(_it->get_nick());
 		return (welcome());		
 	}
 	else if (_command == "USER") {
@@ -96,10 +96,10 @@ void Handle_command::send_motd() {
 	send_message(_it->get_socket(), put_in_answer(" 375  : -" + _server->get_name_server() + "- Message of the day -\r\n"));
 	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
 	send_message(_it->get_socket(), put_in_answer(" 372  : HELLO, WORLD!!!\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : ʘ‿ʘ\r\n"));
 	send_message(_it->get_socket(), put_in_answer(" 372  : WELCOME TO IRC SERVER\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : ༼∵༽ ༼⍨༽ ༼⍢༽ ༼⍤༽\r\n"));
+	send_message(_it->get_socket(), put_in_answer(" 372  : ヽ༼ ಠ益ಠ ༽ﾉ\r\n"));
 	send_message(_it->get_socket(), put_in_answer(" 376  : End of /MOTD command\r\n"));		
 }
 
@@ -165,21 +165,43 @@ void Handle_command::quit() {
 }
 
 void Handle_command::privmsg(bool flag) {
-	if (_parametrs.size() < 2) {
+	if (_parametrs.size() != 2) {
 		send_message(_it->get_socket(), put_in_answer(" 461  PASS :Not enough parameters\r\n"));
 		return;
 	}
-	for (size_t i = 0; i < _parametrs.size() - 1; ++i) {
-		if (!_server->find_nick(_parametrs[i])) {
-			send_message(_it->get_socket(), put_in_answer(" 401 " + _parametrs[i] + " :No such nick/channel\r\n"));
+	std::string one = _parametrs[0];
+	while (one.size()) {
+		std::string tmp = one.substr(0, one.find(','));
+		if (!_server->find_nick(tmp)) {
+			send_message(_it->get_socket(), put_in_answer(" 401 " + tmp + " :No such nick/channel\r\n"));
 			return;
 		}
-		std::string answer = create_priv_message(_parametrs[i], _parametrs[_parametrs.size() - 1], flag);
-		send_message(_server->get_socket_client(_parametrs[i]), answer);
+		std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
+		send_message(_server->get_socket_client(tmp), answer);
+		one.erase(0, tmp.length());
+		one.erase(0, one.find_first_not_of(','));
 	}
 }
 
-void Handle_command::join() {}
+void Handle_command::join() {
+	if (_parametrs.size() != 1) {
+		send_message(_it->get_socket(), put_in_answer(" 461  PASS :Not enough parameters\r\n"));
+		return;
+	}
+	std::string one = _parametrs[0];
+	while (one.size()) {
+		std::string tmp = one.substr(0, one.find(','));
+		if (!_server->find_chan(tmp)) {
+			// create
+		}
+		else {
+			// join
+		}
+		one.erase(0, tmp.length());
+		one.erase(0, one.find_first_not_of(','));
+	}	
+
+}
 
 void Handle_command::invite() {}
 

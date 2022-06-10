@@ -5,11 +5,14 @@
 #include <vector>
 
 class Channel {
-	std::string				_name;
-	std::vector<Client&> 	_clients;
 public:
-	Channel();
-	void add_in_channel();
+	typedef std::vector<Client>::const_iterator client_const_it;
+private:
+	std::string					_name;
+	std::vector<const Client*> 	_clients;
+public:
+	Channel(std::string& name, client_const_it& it);
+	void add_in_channel(client_const_it& it);
 };
 
 #endif
