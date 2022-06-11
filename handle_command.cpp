@@ -183,12 +183,18 @@ void Handle_command::privmsg(bool flag) {
 	std::string one = _parametrs[0];
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
-		if (!_server->find_nick(tmp)) {
+		if (_server->find_nick(tmp)) {
+			std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
+			sendd(_server->get_socket_client(tmp), answer);
+		}
+		else if (_server->find_chan(tmp)) {
+			std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
+			_server->get_chanel(tmp)->send_in_channels(answer, _it);
+		}
+		else {
 			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHNICK));
 			return;
 		}
-		std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
-		sendd(_server->get_socket_client(tmp), answer);
 		one.erase(0, tmp.length());
 		one.erase(0, one.find_first_not_of(','));
 	}
@@ -266,24 +272,33 @@ void Handle_command::create_channels(std::string& tmp) {
 	_server->put_chan(((_server->get_chanel(_parametrs[0]))->get_name_channel()));
 	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
 	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message()));
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message()));
-	sendd(_it->get_socket(), put_in_answer(" 366 " + tmp + RPL_ENDOFNAMES));
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)));
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message(_it)));
+	sendd(_it->get_socket(), put_in_answer(" 366 " + _it->get_nick() + " " + tmp + RPL_ENDOFNAMES));
 }
 
 void Handle_command::join_in_channels(std::string& tmp) {
 	_server->add_in_channel(_parametrs[0], _it);
 	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
-	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message()));
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message()));
-	sendd(_it->get_socket(), put_in_answer(" 366 " + tmp + RPL_ENDOFNAMES));
+	_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n", _it);
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)));
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message(_it)));
+	sendd(_it->get_socket(), put_in_answer(" 366 " + _it->get_nick() + " " + tmp + RPL_ENDOFNAMES));
 }
 
 void Handle_command::mode() {}
 
 void Handle_command::topic() {
-
+	if (_parametrs.size() != 2) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+	if (!_server->find_chan(_parametrs[0])) {
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+		return;
+	}
+	_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1]);
+	_server->get_chanel(_parametrs[0])->send_in_channels(put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)), _it);
 }
 
 void Handle_command::invite() {}
