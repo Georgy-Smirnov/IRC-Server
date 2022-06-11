@@ -9,6 +9,7 @@ public:
 	typedef std::vector<Client>::const_iterator client_const_it;
 private:
 	std::string					_name;
+	std::string					_topic;
 	std::vector<const Client*> 	_clients;
 public:
 	Channel(std::string& name, client_const_it& it);

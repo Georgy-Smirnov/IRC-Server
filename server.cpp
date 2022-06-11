@@ -67,6 +67,9 @@ void Server::work() {
 	}
 }
 
+size_t Server::count_clients() const {
+	return _clients.size();
+}
 
 const std::string Server::get_name_server() const {
 	return _clients[0].get_nick();
@@ -100,6 +103,14 @@ const std::string Server::get_password() const {
 	return _password;
 }
 
+Server::client_it Server::get_client(std::string& name) {
+	for (client_it i = _clients.begin(); i < _clients.end(); ++i) {
+		if (i->get_nick() == name)
+			return i;
+	}
+	return _clients.begin();
+}
+
 const int Server::get_socket_client(std::string& name) const {
 	for (client_const_it i = _clients.begin(); i < _clients.end(); ++i) {
 		if (i->get_nick() == name)
@@ -108,7 +119,11 @@ const int Server::get_socket_client(std::string& name) const {
 	return 0;
 }
 
-void Server::exit_client(client_it& client) {
+void Server::create_channels(std::string &name, client_const_it it) {
+	_channels.push_back(Channel(name, it));
+}
+
+void Server::exit_client(client_it client) {
 	if (client->get_nick().size() != 0) {
 		for (str_pointer_it i = _nicks.begin(); i < _nicks.end(); ++i) {
 			if (**i == client->get_nick()) {
@@ -119,6 +134,16 @@ void Server::exit_client(client_it& client) {
 	}
 	close(client->get_socket());
 	_clients.erase(client);
+}
+
+void Server::restart_server() {
+	_chan.erase(_chan.begin(), _chan.end());
+	_channels.erase(_channels.begin(), _channels.end());
+	_nicks.erase(_nicks.begin(), _nicks.end());
+	while (_clients.size() != 1) {
+		close(_clients.rbegin()->get_socket());
+		_clients.pop_back();
+	}
 }
 
 //PRIVATE MEMBERS:
@@ -146,6 +171,7 @@ void Server::new_client() {
 	if (new_socket == -1)
 		exit(5);
 	_clients.push_back(Client(new_socket, client));
+
 	std::cout << "New client: IP " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
 
 }
@@ -159,7 +185,7 @@ void Server::old_client(client_it &i) {
 		std::cout << "Bye!\n";
 		return;
 	}
-	else if (count_bytes == 0) {
+	else if (count_bytes == -1) {
 		exit(6);
 	}
 	std::string message = buf;

@@ -16,23 +16,24 @@ public:
 private:
 	int				_socket;
 	addrinfov4		_addrinfo;
+	bool			_is_operator;
 	bool			_login;
 	bool			_password;
 	std::string		_nick;
 	std::string 	_real_name;
 public:	
-	explicit Client(int socket, addrinfov4 c) : _socket(socket), _addrinfo(c), _login(false), _password(false), _nick(std::string()), _real_name(std::string()) {}
+	explicit Client(int socket, addrinfov4 c) : _socket(socket), _addrinfo(c), _is_operator(false), _login(false), _password(false), _nick(std::string()), _real_name(std::string()) {}
 	~Client() {}
 	int get_socket() const { return _socket; }
 	
-	bool login() const { return _login; }
 	void log_in() { _login = true; }
-	void log_out() { _login = false; }
-
+	void now_operator() { _is_operator = true; }
 	void put_password() { _password = true; }
 	void put_nick(std::string n) { _nick = n; }
 	void put_real_name(std::string& n) { _real_name = n; }
 
+	bool login() const { return _login; }
+	const bool get_operator() const { return _is_operator; }
 	const bool get_password() const { return _password; }
 	const std::string& get_nick() const { return _nick; }
 	const std::string get_real_name() const { return _real_name; }

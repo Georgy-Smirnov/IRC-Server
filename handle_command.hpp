@@ -22,7 +22,12 @@ class Handle_command {
 	void send_message(int sock, std::string str);
 	void quit(void);
 	void privmsg(bool flag); // NOTICE=0, PRIVMSG=1
+	void oper();
+	void kill();
+	void restart();
 	void join(void);
+	void mode(void);
+	void topic(void);
 	void invite(void);
 	void kick(void);
 	void ping(void);

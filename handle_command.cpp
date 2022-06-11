@@ -1,4 +1,5 @@
 #include "handle_command.hpp"
+#include "message.hpp"
 
 Handle_command::Handle_command(std::vector<Client>::iterator &i, std::string comm, Server* s) : _server(s), _it(i) {
 	char rem = ' ';
@@ -56,9 +57,9 @@ void Handle_command::handle_exec() {
 std::string Handle_command::do_for_login() {
 	if (_command == "NICK") {
 		if (_parametrs.size() < 1 || _parametrs.size() > 2)
-			return put_in_answer(" 461  PASS :Not enough parameters\r\n");
+			return put_in_answer(ERR_NEEDMOREPARAMS);
 		if (_server->find_nick(_parametrs[0]))
-			return put_in_answer(" 433  " + _parametrs[0] + " :Nickname is already in use\r\n");
+			return put_in_answer(" 433  " + _parametrs[0] + ERR_NICKNAMEINUSE);
 		if (_it->get_real_name().size() != 0 && !_it->get_password())
 			return put_in_answer("");
 		_it->put_nick(_parametrs[0]);
@@ -67,7 +68,7 @@ std::string Handle_command::do_for_login() {
 	}
 	else if (_command == "USER") {
 		if (_parametrs.size() < 4)
-			return put_in_answer(" 461  PASS :Not enough parameters\r\n");
+			return put_in_answer(ERR_NEEDMOREPARAMS);
 		if (_it->get_nick().size() != 0 && !_it->get_password())
 			return put_in_answer("");
 		_it->put_real_name(_parametrs[3]);
@@ -75,32 +76,32 @@ std::string Handle_command::do_for_login() {
 	}
 	else if (_command == "PASS") {
 		if (_parametrs.size() != 1)
-			return put_in_answer(" 461  PASS :Not enough parameters\r\n");
+			return put_in_answer(ERR_NEEDMOREPARAMS);
 		if (_parametrs[0] != _server->get_password())
-			return put_in_answer(" 464  :Password incorrect\r\n");
+			return put_in_answer(ERR_PASSWDMISMATCH);
 		_it->put_password();
 		return (welcome());
 		
 	}
-	return put_in_answer(" 451  :You have not registered\r\n");
+	return put_in_answer(ERR_NOTREGISTERED);
 }
 
 std::string Handle_command::create_welc_message() {
 	std::string rezult = ":" + _server->get_name_server() + " 001 ";
-	rezult += _it->get_nick() + " :Welcome to the Internet Relay Network ";
+	rezult += _it->get_nick() + WELCOME;
 	rezult += _it->str_for_irc() + "\r\n";
 	return rezult;
 }
 
 void Handle_command::send_motd() {
-	send_message(_it->get_socket(), put_in_answer(" 375  : -" + _server->get_name_server() + "- Message of the day -\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : \r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : HELLO, WORLD!!!\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : ʘ‿ʘ\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : WELCOME TO IRC SERVER\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : ༼∵༽ ༼⍨༽ ༼⍢༽ ༼⍤༽\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 372  : ヽ༼ ಠ益ಠ ༽ﾉ\r\n"));
-	send_message(_it->get_socket(), put_in_answer(" 376  : End of /MOTD command\r\n"));		
+	send_message(_it->get_socket(), put_in_answer(" 375  : -" + _server->get_name_server() + RPL_MOTDSTART));
+	send_message(_it->get_socket(), put_in_answer(RPL_MOTD1));
+	send_message(_it->get_socket(), put_in_answer(RPL_MOTD2));
+	send_message(_it->get_socket(), put_in_answer(RPL_MOTD3));
+	send_message(_it->get_socket(), put_in_answer(RPL_MOTD4));
+	send_message(_it->get_socket(), put_in_answer(RPL_MOTD5));
+	send_message(_it->get_socket(), put_in_answer(RPL_MOTD6));
+	send_message(_it->get_socket(), put_in_answer(RPL_ENDOFMOTD));		
 }
 
 std::string Handle_command::welcome() {
@@ -128,8 +129,18 @@ void Handle_command::execute() {
 		privmsg(0);
 	else if (_command == "PRIVMSG")
 		privmsg(1);
+	else if (_command == "OPER")
+		oper();
+	else if (_command == "KILL")
+		kill();
+	else if (_command == "RESTART")
+		restart();
 	else if (_command == "JOIN")
 		join();
+	else if (_command == "MODE")
+		mode();
+	else if (_command == "TOPIC")
+		topic();
 	else if (_command == "INVITE")
 		invite();
 	else if (_command == "KICK") 
@@ -139,7 +150,7 @@ void Handle_command::execute() {
 	else if (_command == "PONG") 
 		pong();
 	else {
-		send_message(_it->get_socket(), put_in_answer(_command + " :Unknown command\r\n"));
+		send_message(_it->get_socket(), put_in_answer(" 421 " + _command + " :Unknown command\r\n"));
 	
 	}
 }
@@ -166,14 +177,14 @@ void Handle_command::quit() {
 
 void Handle_command::privmsg(bool flag) {
 	if (_parametrs.size() != 2) {
-		send_message(_it->get_socket(), put_in_answer(" 461  PASS :Not enough parameters\r\n"));
+		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
 		return;
 	}
 	std::string one = _parametrs[0];
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
 		if (!_server->find_nick(tmp)) {
-			send_message(_it->get_socket(), put_in_answer(" 401 " + tmp + " :No such nick/channel\r\n"));
+			send_message(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHNICK));
 			return;
 		}
 		std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
@@ -183,16 +194,58 @@ void Handle_command::privmsg(bool flag) {
 	}
 }
 
+void Handle_command::oper() {
+	if (_parametrs.size() != 2) {
+		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+	if (!_server->find_nick(_parametrs[0])) {
+		send_message(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
+		return;
+	}
+	if (_parametrs[1] != _server->get_password() + "_oper") {
+		send_message(_it->get_socket(), put_in_answer(ERR_PASSWDMISMATCH));
+		return;
+	}
+	send_message(_it->get_socket(), put_in_answer(RPL_YOUREOPER));
+	_it->now_operator();
+}
+
+void Handle_command::kill() {
+	if (_parametrs.size() != 2) {
+		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+	if (!_server->find_nick(_parametrs[0])) {
+		send_message(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
+		return;
+	}
+	if (!_it->get_operator()) {
+		send_message(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+		return;
+	}
+	send_message(_server->get_socket_client(_parametrs[0]), _parametrs[1] + "\r\n");
+	_server->exit_client(_server->get_client(_parametrs[0]));
+}
+
+void Handle_command::restart() {
+	if (!_it->get_operator()) {
+		send_message(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+		return;
+	}
+	_server->restart_server();
+}
+
 void Handle_command::join() {
 	if (_parametrs.size() != 1) {
-		send_message(_it->get_socket(), put_in_answer(" 461  PASS :Not enough parameters\r\n"));
+		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
 		return;
 	}
 	std::string one = _parametrs[0];
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
 		if (!_server->find_chan(tmp)) {
-			// create
+			_server->create_channels(_parametrs[0], _it);
 		}
 		else {
 			// join
@@ -202,6 +255,9 @@ void Handle_command::join() {
 	}	
 
 }
+void Handle_command::mode() {}
+
+void Handle_command::topic() {}
 
 void Handle_command::invite() {}
 

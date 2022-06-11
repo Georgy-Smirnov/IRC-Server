@@ -6,8 +6,8 @@
 #include "channel.hpp"
 #include <algorithm>
 
-#define BUFFER_SIZE 1024
 #define SERVER_NAME "Kjaco's_server"
+#define BUFFER_SIZE 1024
 #define COUNT_CLIENTS 20
 #define COUNT_CHANNEL 10
 
@@ -32,6 +32,7 @@ public:
 	void start();
 	void work();
 
+	size_t count_clients() const;
 	const std::string get_name_server() const;
 	bool find_nick(const std::string& str) const;
 	void put_nick(const std::string& str);
@@ -40,11 +41,13 @@ public:
 	void put_chan(const std::string& str);
 
 	const std::string get_password() const;
+	client_it get_client(std::string& name);
 	const int get_socket_client(std::string& name) const;
 
 	void create_channels(std::string &name, client_const_it it);
 
-	void exit_client(client_it& client);
+	void exit_client(client_it client);
+	void restart_server();
 private:
 	void reserve_put_vectors(int& sock, struct sockaddr_in& serv);
 	void new_client();
