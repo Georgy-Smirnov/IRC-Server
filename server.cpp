@@ -111,6 +111,14 @@ Server::client_it Server::get_client(std::string& name) {
 	return _clients.begin();
 }
 
+Server::channel_it Server::get_chanel(std::string& name) {
+	for (channel_it i = _channels.begin(); i < _channels.end(); ++i) {
+		if (i->get_name_channel() == name)
+			return i;
+	}
+	return _channels.begin();
+}
+
 const int Server::get_socket_client(std::string& name) const {
 	for (client_const_it i = _clients.begin(); i < _clients.end(); ++i) {
 		if (i->get_nick() == name)
@@ -121,6 +129,10 @@ const int Server::get_socket_client(std::string& name) const {
 
 void Server::create_channels(std::string &name, client_const_it it) {
 	_channels.push_back(Channel(name, it));
+}
+
+void Server::add_in_channel(std::string &name, client_const_it it) {
+	get_chanel(name)->add_in_channel(it);
 }
 
 void Server::exit_client(client_it client) {

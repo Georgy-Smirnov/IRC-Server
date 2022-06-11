@@ -13,8 +13,13 @@
 #define RPL_MOTD6 " 372  :   ༼⍢༽ ༼⍨༽ ༼⍤༽ ༼∵༽\r\n"
 #define RPL_ENDOFMOTD " 376  : End of /MOTD command\r\n"
 #define RPL_YOUREOPER " 381 :You are now an IRC operator\r\n"
+#define ERR_YOUREBANNEDCREEP " 465 :You are banned from this server\r\n"
+//CHANNELS
+#define RPL_NOTOPIC " :No topic is set\r\n"
+#define RPL_ENDOFNAMES " :End of /NAMES list\r\n"
 //ERRORS
 #define ERR_NOSUCHNICK " :No such nick/channel\r\n"
+#define ERR_NOSUCHCHANNEL " :No such channel\r\n"
 #define ERR_NICKNAMEINUSE " :Nickname is already in use\r\n"
 #define ERR_UNKNOWNCOMMAND " :Unknown command\r\n"
 #define ERR_NOTREGISTERED " 451  :You have not registered\r\n"

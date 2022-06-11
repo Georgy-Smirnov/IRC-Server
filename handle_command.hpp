@@ -19,12 +19,12 @@ class Handle_command {
 	std::string put_in_answer(std::string message);
 	std::string welcome(void);
 	void execute(void);
-	void send_message(int sock, std::string str);
+	void sendd(int sock, std::string str);
 	void quit(void);
 	void privmsg(bool flag); // NOTICE=0, PRIVMSG=1
-	void oper();
-	void kill();
-	void restart();
+	void oper(void);
+	void kill(void);
+	void restart(void);
 	void join(void);
 	void mode(void);
 	void topic(void);
@@ -36,6 +36,8 @@ class Handle_command {
 	std::string create_priv_message(std::string& name, std::string& mes, bool flag);
 	std::string create_welc_message();
 	void send_motd();
+	void create_channels(std::string& tmp);
+	void join_in_channels(std::string& tmp);
 public:
 	Handle_command(std::vector<Client>::iterator &i, std::string comm, Server* s);
 	void handle_exec(void);

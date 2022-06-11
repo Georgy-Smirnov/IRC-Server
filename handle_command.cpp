@@ -94,20 +94,20 @@ std::string Handle_command::create_welc_message() {
 }
 
 void Handle_command::send_motd() {
-	send_message(_it->get_socket(), put_in_answer(" 375  : -" + _server->get_name_server() + RPL_MOTDSTART));
-	send_message(_it->get_socket(), put_in_answer(RPL_MOTD1));
-	send_message(_it->get_socket(), put_in_answer(RPL_MOTD2));
-	send_message(_it->get_socket(), put_in_answer(RPL_MOTD3));
-	send_message(_it->get_socket(), put_in_answer(RPL_MOTD4));
-	send_message(_it->get_socket(), put_in_answer(RPL_MOTD5));
-	send_message(_it->get_socket(), put_in_answer(RPL_MOTD6));
-	send_message(_it->get_socket(), put_in_answer(RPL_ENDOFMOTD));		
+	sendd(_it->get_socket(), put_in_answer(" 375  : -" + _server->get_name_server() + RPL_MOTDSTART));
+	sendd(_it->get_socket(), put_in_answer(RPL_MOTD1));
+	sendd(_it->get_socket(), put_in_answer(RPL_MOTD2));
+	sendd(_it->get_socket(), put_in_answer(RPL_MOTD3));
+	sendd(_it->get_socket(), put_in_answer(RPL_MOTD4));
+	sendd(_it->get_socket(), put_in_answer(RPL_MOTD5));
+	sendd(_it->get_socket(), put_in_answer(RPL_MOTD6));
+	sendd(_it->get_socket(), put_in_answer(RPL_ENDOFMOTD));		
 }
 
 std::string Handle_command::welcome() {
 	if (_it->get_nick().size() != 0 && _it->get_password() && _it->get_real_name().size() != 0) {
 		_it->log_in();
-		send_message(_it->get_socket(), create_welc_message());
+		sendd(_it->get_socket(), create_welc_message());
 		send_motd();
 	}
 	return ("");
@@ -150,12 +150,12 @@ void Handle_command::execute() {
 	else if (_command == "PONG") 
 		pong();
 	else {
-		send_message(_it->get_socket(), put_in_answer(" 421 " + _command + " :Unknown command\r\n"));
+		sendd(_it->get_socket(), put_in_answer(" 421 " + _command + ERR_UNKNOWNCOMMAND));
 	
 	}
 }
 
-void Handle_command::send_message(int sock, std::string str) {
+void Handle_command::sendd(int sock, std::string str) {
 	int count_bytes = send(sock, str.c_str(), str.length(), 0);
 	if (count_bytes == -1)
 		exit(7);
@@ -177,18 +177,18 @@ void Handle_command::quit() {
 
 void Handle_command::privmsg(bool flag) {
 	if (_parametrs.size() != 2) {
-		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
 		return;
 	}
 	std::string one = _parametrs[0];
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
 		if (!_server->find_nick(tmp)) {
-			send_message(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHNICK));
+			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHNICK));
 			return;
 		}
 		std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
-		send_message(_server->get_socket_client(tmp), answer);
+		sendd(_server->get_socket_client(tmp), answer);
 		one.erase(0, tmp.length());
 		one.erase(0, one.find_first_not_of(','));
 	}
@@ -196,41 +196,43 @@ void Handle_command::privmsg(bool flag) {
 
 void Handle_command::oper() {
 	if (_parametrs.size() != 2) {
-		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
 		return;
 	}
 	if (!_server->find_nick(_parametrs[0])) {
-		send_message(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
 		return;
 	}
 	if (_parametrs[1] != _server->get_password() + "_oper") {
-		send_message(_it->get_socket(), put_in_answer(ERR_PASSWDMISMATCH));
+		sendd(_it->get_socket(), put_in_answer(ERR_PASSWDMISMATCH));
 		return;
 	}
-	send_message(_it->get_socket(), put_in_answer(RPL_YOUREOPER));
+	sendd(_it->get_socket(), put_in_answer(RPL_YOUREOPER));
 	_it->now_operator();
 }
 
 void Handle_command::kill() {
-	if (_parametrs.size() != 2) {
-		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+	if (_parametrs.size() > 2 || _parametrs.size() < 1) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
 		return;
 	}
 	if (!_server->find_nick(_parametrs[0])) {
-		send_message(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
 		return;
 	}
 	if (!_it->get_operator()) {
-		send_message(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
 		return;
 	}
-	send_message(_server->get_socket_client(_parametrs[0]), _parametrs[1] + "\r\n");
+	if (_parametrs.size() == 2)
+		sendd(_server->get_socket_client(_parametrs[0]), _parametrs[1] + "\r\n");
+	sendd(_server->get_socket_client(_parametrs[0]), ERR_YOUREBANNEDCREEP);
 	_server->exit_client(_server->get_client(_parametrs[0]));
 }
 
 void Handle_command::restart() {
 	if (!_it->get_operator()) {
-		send_message(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
 		return;
 	}
 	_server->restart_server();
@@ -238,26 +240,51 @@ void Handle_command::restart() {
 
 void Handle_command::join() {
 	if (_parametrs.size() != 1) {
-		send_message(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
 		return;
 	}
 	std::string one = _parametrs[0];
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
-		if (!_server->find_chan(tmp)) {
-			_server->create_channels(_parametrs[0], _it);
+		if (tmp.front() != '#') {
+			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHCHANNEL));
+			return;
 		}
+		if (!_server->find_chan(tmp))
+			create_channels(tmp);
 		else {
-			// join
+			join_in_channels(tmp);
 		}
 		one.erase(0, tmp.length());
 		one.erase(0, one.find_first_not_of(','));
 	}	
 
 }
+
+void Handle_command::create_channels(std::string& tmp) {
+	_server->create_channels(_parametrs[0], _it);
+	_server->put_chan(((_server->get_chanel(_parametrs[0]))->get_name_channel()));
+	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
+	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message()));
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message()));
+	sendd(_it->get_socket(), put_in_answer(" 366 " + tmp + RPL_ENDOFNAMES));
+}
+
+void Handle_command::join_in_channels(std::string& tmp) {
+	_server->add_in_channel(_parametrs[0], _it);
+	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
+	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message()));
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message()));
+	sendd(_it->get_socket(), put_in_answer(" 366 " + tmp + RPL_ENDOFNAMES));
+}
+
 void Handle_command::mode() {}
 
-void Handle_command::topic() {}
+void Handle_command::topic() {
+
+}
 
 void Handle_command::invite() {}
 
@@ -271,7 +298,7 @@ void Handle_command::ping() {
 	}
 	answer.pop_back();
 	answer += "\r\n";
-	send_message(_it->get_socket(), answer);
+	sendd(_it->get_socket(), answer);
 }
 
 void Handle_command::pong() {

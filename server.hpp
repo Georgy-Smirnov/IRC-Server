@@ -42,9 +42,11 @@ public:
 
 	const std::string get_password() const;
 	client_it get_client(std::string& name);
+	channel_it get_chanel(std::string& name);
 	const int get_socket_client(std::string& name) const;
 
 	void create_channels(std::string &name, client_const_it it);
+	void add_in_channel(std::string &name, client_const_it it);
 
 	void exit_client(client_it client);
 	void restart_server();
@@ -53,6 +55,7 @@ private:
 	void new_client();
 	void old_client(client_it &i);
 	int put_in_set(fd_set* read_set);
+
 
 };
 
