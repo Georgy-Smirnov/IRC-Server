@@ -17,6 +17,9 @@
 //CHANNELS
 #define RPL_NOTOPIC " :No topic is set\r\n"
 #define RPL_ENDOFNAMES " :End of /NAMES list\r\n"
+#define ERR_CHANOPRIVSNEEDED " :You're not channel operator\r\n"
+#define ERR_KEYSET " :Channel key already set\r\n"
+#define ERR_UMODEUNKNOWNFLAG " 501 :Unknown MODE flag\r\n"
 //ERRORS
 #define ERR_NOSUCHNICK " :No such nick/channel\r\n"
 #define ERR_NOSUCHCHANNEL " :No such channel\r\n"
@@ -25,6 +28,6 @@
 #define ERR_NOTREGISTERED " 451  :You have not registered\r\n"
 #define ERR_NEEDMOREPARAMS " 461  OPER :Not enough parameters\r\n"
 #define ERR_PASSWDMISMATCH " 464  :Password incorrect\r\n"
-#define ERR_CHANOPRIVSNEEDED " :Permission Denied- You're not an IRC operator\r\n"
+#define ERR_NOPRIVILEGES " :Permission Denied- You're not an IRC operator\r\n"
 
 #endif

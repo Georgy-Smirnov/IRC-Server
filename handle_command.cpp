@@ -145,6 +145,8 @@ void Handle_command::execute() {
 		invite();
 	else if (_command == "KICK") 
 		kick();
+	else if (_command == "WHO")
+		who();
 	else if (_command == "PING") 
 		ping();
 	else if (_command == "PONG") 
@@ -227,7 +229,7 @@ void Handle_command::kill() {
 		return;
 	}
 	if (!_it->get_operator()) {
-		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_NOPRIVILEGES));
 		return;
 	}
 	if (_parametrs.size() == 2)
@@ -280,13 +282,38 @@ void Handle_command::create_channels(std::string& tmp) {
 void Handle_command::join_in_channels(std::string& tmp) {
 	_server->add_in_channel(_parametrs[0], _it);
 	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
+	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
 	_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n", _it);
 	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)));
 	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message(_it)));
 	sendd(_it->get_socket(), put_in_answer(" 366 " + _it->get_nick() + " " + tmp + RPL_ENDOFNAMES));
 }
 
-void Handle_command::mode() {}
+void Handle_command::mode() {
+	if (_parametrs.size() < 1 || _parametrs.size() > 2) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+	if (!_server->find_chan(_parametrs[0])) {
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+		return;
+	}
+	if (_parametrs.size() == 2) {
+		short status = _server->get_chanel(_parametrs[0])->put_in_mode(_parametrs[1], _it);
+		switch (status)
+		{
+		case 1:
+			sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+			break;
+		case 2:
+			sendd(_it->get_socket(), put_in_answer(" 467 " + _parametrs[0] + ERR_KEYSET));
+			break;
+		case 3:
+			sendd(_it->get_socket(), put_in_answer(ERR_UMODEUNKNOWNFLAG));
+			break;		
+		}
+	}
+}
 
 void Handle_command::topic() {
 	if (_parametrs.size() != 2) {
@@ -297,13 +324,50 @@ void Handle_command::topic() {
 		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
 		return;
 	}
-	_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1]);
-	_server->get_chanel(_parametrs[0])->send_in_channels(put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)), _it);
+	_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1], _it);
+	_server->get_chanel(_parametrs[0])->send_in_channels(":" + _it->str_for_irc() + " TOPIC " + _parametrs[0] + " :" + _parametrs[1] + "\r\n", _it);
 }
 
-void Handle_command::invite() {}
+void Handle_command::invite() {
+	if (_parametrs.size() != 2) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+	if (!_server->find_nick(_parametrs[0])) {
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
+		return;
+	}
+		if (!_server->find_chan(_parametrs[1])) {
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+		return;
+	}
+	sendd(_server->get_socket_client(_parametrs[0]), put_in_answer(" INVITE " + _parametrs[0] + " :" + _parametrs[1] + "\r\n"));
+}
 
-void Handle_command::kick() {}
+void Handle_command::kick() {
+	if (_parametrs.size() != 2) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+		if (!_server->find_chan(_parametrs[0])) {
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+		return;
+	}
+	short status = _server->get_chanel(_parametrs[0])->kick_from_channel(_parametrs[1], _it);
+	switch (status)
+	{
+	case 1:
+		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+		break;
+	case 2:
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+		break;		
+	}
+}
+
+void Handle_command::who() {
+	//надо написать функцию которая по маске будет выдавать информацию про клиента из вектора.
+}
 
 void Handle_command::ping() {
 	typedef std::vector<std::string>::iterator iter;

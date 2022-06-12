@@ -137,7 +137,7 @@ void Server::add_in_channel(std::string &name, client_const_it it) {
 
 void Server::exit_client(client_it client) {
 	if (client->get_nick().size() != 0) {
-		for (str_pointer_it i = _nicks.begin(); i < _nicks.end(); ++i) {
+		for (str_pointer_it i = _nicks.begin(); i <= _nicks.end(); ++i) {
 			if (**i == client->get_nick()) {
 				_nicks.erase(i);
 				break;
