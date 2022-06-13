@@ -184,23 +184,31 @@ void Server::new_client() {
 		exit(5);
 	_clients.push_back(Client(new_socket, client));
 
-	std::cout << "New client: IP " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
+	std::cout << "New client: IP: " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
 
+}
+
+void f(std::string& str, char *b, int count_bytes) {
+	int i = 0;
+	while (i < count_bytes) {
+		str.push_back(b[i]);
+		++i;
+	}
 }
 
 void Server::old_client(client_it &i) {
 	char buf[BUFFER_SIZE];
 	std::memset(buf, 0, BUFFER_SIZE);
-	int count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0);
+	int count_bytes;
+	std::string message;
+	fcntl(i->get_socket(), F_SETFL, O_NONBLOCK);
+	while ((count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0)) > 0)
+		f(message, buf, count_bytes);
 	if (count_bytes == 0) {
+		std::cout << "Client exit! IP:" << i->get_ip_address() << "\n";
 		exit_client(i);
-		std::cout << "Bye!\n";
 		return;
 	}
-	else if (count_bytes == -1) {
-		exit(6);
-	}
-	std::string message = buf;
 	if (message.back() == '\n') {
 		message.pop_back();
 		if (message.back() == '\r')

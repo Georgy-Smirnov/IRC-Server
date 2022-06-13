@@ -5,6 +5,7 @@
 #include "handle_command.hpp"
 #include "channel.hpp"
 #include <algorithm>
+#include <fcntl.h>
 
 #define SERVER_NAME "Kjaco's_server"
 #define BUFFER_SIZE 1024
