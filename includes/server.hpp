@@ -46,6 +46,7 @@ public:
 
 	void exit_client(client_it client);
 	void restart_server();
+	Client& return_client(size_t index);
 private:
 	void reserve_put_vectors(int& sock, struct sockaddr_in& serv);
 	void new_client();
@@ -54,7 +55,6 @@ private:
 	
 	void remove_channel(channel_it &it);
 
-	void print_vector();
 };
 
 #endif

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "server.hpp"
+#include "includes/server.hpp"
 
 int main(int argc, const char **argv) {
 	if (argc != 3) {

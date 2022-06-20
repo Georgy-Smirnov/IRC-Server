@@ -1,5 +1,5 @@
-#include "channel.hpp"
-#include "message.hpp"
+#include "includes/channel.hpp"
+#include "includes/message.hpp"
 
 Channel::Channel(std::string& name, client_const_it& it) : _name(name), _topic(std::string()), _mode(std::string()) {
 	_clients.push_back(&(*it));
@@ -24,10 +24,11 @@ void Channel::remove_from_channel(const std::string &name) {
 	}
 }
 
-void Channel::send_in_channels(std::string str, client_const_it it) {
+void Channel::send_in_channels(std::string str, client_const_it it, bool ret_message) {
 	for (client_const_point_it i = _clients.begin(); i < _clients.end(); ++i) {
-		if (&(*it) != *i) 
-			send((*i)->get_socket(), (const void *)(str.c_str()), str.length(), 0);
+		if (&(*it) == *i && ret_message == false) 
+			continue;
+		send((*i)->get_socket(), (const void *)(str.c_str()), str.length(), 0);
 	}
 }
 
@@ -46,7 +47,7 @@ short Channel::put_in_mode(std::string& m, client_const_it it) {
 			if (_mode.find(m[i]) != std::string::npos)
 				return 2;
 			_mode.push_back(m[i]);
-			send_in_channels(":" + it->str_for_irc() + " MODE " + _name + " +" + m[i] + "\r\n", it);
+			send_in_channels(":" + it->str_for_irc() + " MODE " + _name + " +" + m[i] + "\r\n", it, true);
 		}
 	}
 	else if (m[0] == '-') {
@@ -55,7 +56,7 @@ short Channel::put_in_mode(std::string& m, client_const_it it) {
 				return 3;
 			if (_mode.find(m[i]) == std::string::npos)
 				return 2;
-			send_in_channels(":" + it->str_for_irc() + " MODE " + _name + " +" + m[i] + "\r\n", it);
+			send_in_channels(":" + it->str_for_irc() + " MODE " + _name + " +" + m[i] + "\r\n", it, true);
 			_mode.erase(_mode.find(m[i]));
 		}
 	}
@@ -69,7 +70,7 @@ short Channel::kick_from_channel(std::string& m, client_const_it it) {
 		return 1;
 	for (client_const_point_it i = _clients.begin(); i < _clients.end(); ++i) {
 		if ((*i)->get_nick() == m) {
-			send_in_channels(":" + it->str_for_irc() + " KICK " + _name + " " + (*i)->get_nick() + " :" + it->get_nick() + "\r\n", it);
+			send_in_channels(":" + it->str_for_irc() + " KICK " + _name + " " + (*i)->get_nick() + " :" + it->get_nick() + "\r\n", it, true);
 			_clients.erase(i);
 			return 0;
 		}

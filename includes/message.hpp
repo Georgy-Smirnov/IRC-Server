@@ -14,6 +14,7 @@
 #define RPL_ENDOFMOTD " 376  : End of /MOTD command\r\n"
 #define RPL_YOUREOPER " 381 :You are now an IRC operator\r\n"
 #define ERR_YOUREBANNEDCREEP " 465 :You are banned from this server\r\n"
+#define RPL_ENDOFWHO " :End of /WHO list\r\n"
 //CHANNELS
 #define RPL_NOTOPIC " :No topic is set\r\n"
 #define RPL_ENDOFNAMES " :End of /NAMES list\r\n"

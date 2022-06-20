@@ -17,7 +17,7 @@ public:
 	Channel(std::string& name, client_const_it& it);
 	void add_in_channel(client_const_it& it);
 	void remove_from_channel(const std::string &name);
-	void send_in_channels(std::string str, client_const_it it);
+	void send_in_channels(std::string str, client_const_it it, bool ret_message);
 	void put_in_topic(std::string& t, client_const_it it);
 	short put_in_mode(std::string& m, client_const_it it);
 	short kick_from_channel(std::string& n, client_const_it it);

@@ -40,6 +40,8 @@ class Handle_command {
 	void send_motd();
 	void create_channels(std::string& tmp);
 	void join_in_channels(std::string& tmp);
+	void send_channel_list(std::string& tmp);
+	void send_topic(std::string& tmp);
 public:
 	Handle_command(std::vector<Client>::iterator &i, std::string comm, Server* s);
 	void handle_exec(void);

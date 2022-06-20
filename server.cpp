@@ -1,4 +1,4 @@
-#include "server.hpp"
+#include "includes/server.hpp"
 
 // PUBLIC MEMBERS
 
@@ -208,4 +208,8 @@ void Server::old_client(client_it &i) {
 void Server::remove_channel(channel_it &it)
 {
 	_channels.erase(it);
+}
+
+Client& Server::return_client(size_t index) {
+	return _clients[index];
 }

@@ -1,5 +1,5 @@
-#include "handle_command.hpp"
-#include "message.hpp"
+#include "includes/handle_command.hpp"
+#include "includes/message.hpp"
 
 Handle_command::Handle_command(std::vector<Client>::iterator &i, std::string comm, Server* s) : _server(s), _it(i) {
 	char rem = ' ';
@@ -70,6 +70,9 @@ std::string Handle_command::do_for_login() {
 			return put_in_answer(ERR_NEEDMOREPARAMS);
 		if (_it->get_nick().size() != 0 && !_it->get_password())
 			return put_in_answer("");
+		_it->put_user_name(_parametrs[0]);
+		_it->put_host_name(_parametrs[1]);
+		_it->put_server_name(_parametrs[2]);
 		_it->put_real_name(_parametrs[3]);
 		return (welcome());
 	}
@@ -193,7 +196,7 @@ void Handle_command::privmsg(bool flag) {
 		}
 		else if (_server->find_chan(tmp)) {
 			std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
-			_server->get_chanel(tmp)->send_in_channels(answer, _it);
+			_server->get_chanel(tmp)->send_in_channels(answer, _it, false);
 		}
 		else {
 			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHNICK));
@@ -304,7 +307,7 @@ void Handle_command::part() {
 				_server->get_chanel(tmp)->remove_from_channel(_it->get_nick());
 				std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
 				sendd(_it->get_socket(), ":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n");
-				_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n", _it);
+				_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n", _it, false);
 				if (_server->get_chanel(tmp)->get_users_num() == 0)
 				one.erase(0, tmp.length());
 				one.erase(0, one.find_first_not_of(','));
@@ -314,26 +317,28 @@ void Handle_command::part() {
 	}
 
 }
-// 442     ERR_NOTONCHANNEL
-//                         "<channel> :You're not on that channel"
 
-void Handle_command::create_channels(std::string& tmp) {
-	_server->create_channels(_parametrs[0], _it);
-	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
-	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)));
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message(_it)));
+void Handle_command::send_topic(std::string& tmp) {
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(tmp)->get_topic_message(_it)));
+}
+
+void Handle_command::send_channel_list(std::string& tmp) {
+	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(tmp)->get_names_message(_it)));
 	sendd(_it->get_socket(), put_in_answer(" 366 " + _it->get_nick() + " " + tmp + RPL_ENDOFNAMES));
 }
 
-void Handle_command::join_in_channels(std::string& tmp) {
-	_server->add_in_channel(_parametrs[0], _it);
-	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
+void Handle_command::create_channels(std::string& tmp) {
+	_server->create_channels(_parametrs[0], _it);
+	std::string names = (_server->get_chanel(tmp))->get_names_users();
 	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
-	_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n", _it);
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)));
-	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_names_message(_it)));
-	sendd(_it->get_socket(), put_in_answer(" 366 " + _it->get_nick() + " " + tmp + RPL_ENDOFNAMES));
+	send_topic(tmp);
+}
+
+void Handle_command::join_in_channels(std::string& tmp) {
+	_server->add_in_channel(tmp, _it);
+	std::string names = (_server->get_chanel(tmp))->get_names_users();
+	_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n", _it, true);
+	send_topic(tmp);
 }
 
 void Handle_command::mode() {
@@ -372,7 +377,7 @@ void Handle_command::topic() {
 		return;
 	}
 	_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1], _it);
-	_server->get_chanel(_parametrs[0])->send_in_channels(":" + _it->str_for_irc() + " TOPIC " + _parametrs[0] + " :" + _parametrs[1] + "\r\n", _it);
+	_server->get_chanel(_parametrs[0])->send_in_channels(":" + _it->str_for_irc() + " TOPIC " + _parametrs[0] + " :" + _parametrs[1] + "\r\n", _it, true);
 }
 
 void Handle_command::invite() {
@@ -396,7 +401,7 @@ void Handle_command::kick() {
 		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
 		return;
 	}
-		if (!_server->find_chan(_parametrs[0])) {
+	if (!_server->find_chan(_parametrs[0])) {
 		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
 		return;
 	}
@@ -413,7 +418,32 @@ void Handle_command::kick() {
 }
 
 void Handle_command::who() {
-	//надо написать функцию которая по маске будет выдавать информацию про клиента из вектора.
+	if (_parametrs.size() != 1) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+	if (_parametrs[0][0] == '#') {
+		if (!_server->find_chan(_parametrs[0])) {
+			sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+			return;
+		}
+		send_channel_list(_parametrs[0]);
+	}
+	else if (_parametrs[0][0] == '*' && _parametrs[0].length() == 1) {
+		for (size_t i = 1; i < _server->count_clients(); ++i) {
+			Client& tmp = _server->return_client(i);
+			std::cout << ">>" << tmp.get_user_name() << "<<" << std::endl;
+			sendd(_it->get_socket(), put_in_answer(" 352 " + _it->get_nick() + " * "  + tmp.get_user_name() + " " + tmp.get_ip_address() + " " + _server->get_name_server() + " " + tmp.get_nick() + " H :0 " + tmp.get_real_name() + "\r\n"));
+		}
+		sendd(_it->get_socket(), put_in_answer(" 315 " + _it->get_nick() + " " + _it->get_nick() + RPL_ENDOFWHO));
+	}
+	else {
+		if (_server->find_nick(_parametrs[0])) {
+			Client& tmp  = *(_server->get_client(_parametrs[0]));
+			sendd(_it->get_socket(), put_in_answer(" 352 " + _it->get_nick() + " * "  + tmp.get_user_name() + " " + tmp.get_ip_address() + " " + _server->get_name_server() + " " + tmp.get_nick() + " H :0 " + tmp.get_real_name() + "\r\n"));
+			sendd(_it->get_socket(), put_in_answer(" 315 " + _it->get_nick() + " " + _it->get_nick() + RPL_ENDOFWHO));
+		}
+	}
 }
 
 void Handle_command::ping() {
