@@ -149,6 +149,8 @@ void Handle_command::execute() {
 		kick();
 	else if (_command == "WHO")
 		who();
+	else if (_command == "LIST")
+		list();
 	else if (_command == "PING") 
 		ping();
 	else if (_command == "PONG") 
@@ -444,6 +446,8 @@ void Handle_command::who() {
 		}
 	}
 }
+
+void Handle_command::list(void) {}
 
 void Handle_command::ping() {
 	typedef std::vector<std::string>::iterator iter;

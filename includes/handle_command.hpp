@@ -32,6 +32,7 @@ class Handle_command {
 	void invite(void);
 	void kick(void);
 	void who(void);
+	void list(void);
 	void ping(void);
 	void pong(void);
 
