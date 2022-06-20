@@ -33,9 +33,9 @@ public:
 	void now_operator() { _is_operator = true; }
 	void put_password() { _password = true; }
 	void put_nick(std::string n) { _nick = n; }
-	void put_user_name(std::string& n) { _real_name = n; }
-	void put_host_name(std::string& n) { _real_name = n; }
-	void put_server_name(std::string& n) { _real_name = n; }
+	void put_user_name(std::string& n) { _user_name = n; }
+	void put_host_name(std::string& n) { _host_name = n; }
+	void put_server_name(std::string& n) { _server_name = n; }
 	void put_real_name(std::string& n) { _real_name = n; }
 
 	bool login() const { return _login; }

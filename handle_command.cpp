@@ -432,15 +432,14 @@ void Handle_command::who() {
 	else if (_parametrs[0][0] == '*' && _parametrs[0].length() == 1) {
 		for (size_t i = 1; i < _server->count_clients(); ++i) {
 			Client& tmp = _server->return_client(i);
-			std::cout << ">>" << tmp.get_user_name() << "<<" << std::endl;
-			sendd(_it->get_socket(), put_in_answer(" 352 " + _it->get_nick() + " * "  + tmp.get_user_name() + " " + tmp.get_ip_address() + " " + _server->get_name_server() + " " + tmp.get_nick() + " H :0 " + tmp.get_real_name() + "\r\n"));
+			sendd(_it->get_socket(), put_in_answer(" 352 " + _it->get_nick() + " * "  + tmp.get_user_name() + " " + tmp.get_server_name() + " " + _server->get_name_server() + " " + tmp.get_nick() + " H :0 " + tmp.get_real_name() + "\r\n"));
 		}
 		sendd(_it->get_socket(), put_in_answer(" 315 " + _it->get_nick() + " " + _it->get_nick() + RPL_ENDOFWHO));
 	}
 	else {
 		if (_server->find_nick(_parametrs[0])) {
 			Client& tmp  = *(_server->get_client(_parametrs[0]));
-			sendd(_it->get_socket(), put_in_answer(" 352 " + _it->get_nick() + " * "  + tmp.get_user_name() + " " + tmp.get_ip_address() + " " + _server->get_name_server() + " " + tmp.get_nick() + " H :0 " + tmp.get_real_name() + "\r\n"));
+			sendd(_it->get_socket(), put_in_answer(" 352 " + _it->get_nick() + " * "  + tmp.get_user_name() + " " + tmp.get_server_name() + " " + _server->get_name_server() + " " + tmp.get_nick() + " H :0 " + tmp.get_real_name() + "\r\n"));
 			sendd(_it->get_socket(), put_in_answer(" 315 " + _it->get_nick() + " " + _it->get_nick() + RPL_ENDOFWHO));
 		}
 	}
