@@ -16,6 +16,7 @@ private:
 public:
 	Channel(std::string& name, client_const_it& it);
 	void add_in_channel(client_const_it& it);
+	void remove_from_channel(const std::string &name);
 	void send_in_channels(std::string str, client_const_it it);
 	void put_in_topic(std::string& t, client_const_it it);
 	short put_in_mode(std::string& m, client_const_it it);
@@ -26,6 +27,7 @@ public:
 	const std::string& get_name_channel() const;
 	const std::string get_topic_message(client_const_it it) const;
 	const std::string get_names_message(client_const_it it) const;
+	const int get_users_num() const;
 };
 
 #endif

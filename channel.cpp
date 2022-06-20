@@ -9,6 +9,21 @@ void Channel::add_in_channel(client_const_it& it) {
 	_clients.push_back(&(*it));
 }
 
+void Channel::remove_from_channel(const std::string &name) {
+	client_const_point_it It = _clients.begin();
+	client_const_point_it Ite = _clients.end();
+	for ( ; It != Ite; ++It)
+	{
+		if ((*It)->get_nick() == name)
+			break ;
+	}
+	if (It != Ite)
+	{
+		_clients.erase(It);
+		// std::cout << (*It)->get_nick() << " left channel" << std::endl;
+	}
+}
+
 void Channel::send_in_channels(std::string str, client_const_it it) {
 	for (client_const_point_it i = _clients.begin(); i < _clients.end(); ++i) {
 		if (&(*it) != *i) 
@@ -84,3 +99,6 @@ const std::string Channel::get_names_message(client_const_it it) const {
 	return " 353 " + it->get_nick() + " = " + _name + " " + get_names_users() + "\r\n";
 }
 
+const int Channel::get_users_num() const {
+	return _clients.size();
+}

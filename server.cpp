@@ -25,7 +25,7 @@ void Server::start() {
 	if (status == -1)
 		exit(2);
 
-	status = listen(sock, 10); // count?
+	status = listen(sock, TURN_COUNT);
 	if (status == -1)
 		exit(3);
 	reserve_put_vectors(sock, serv);
@@ -76,27 +76,19 @@ const std::string Server::get_name_server() const {
 }
 
 bool Server::find_nick(const std::string& str) const {
-	for (str_pointer_it i = _nicks.begin(); i < _nicks.end(); ++i) {
-		if (*(*i) == str)
+	for (client_const_it i = _clients.begin(); i < _clients.end(); ++i) {
+		if (i->get_nick() == str)
 			return true;
 	}
 	return false;
-}
-
-void Server::put_nick(const std::string& str) {
-	_nicks.push_back(&str);
 }
 
 bool Server::find_chan(const std::string& str) const {
-	for (str_pointer_it i = _chan.begin(); i < _chan.end(); ++i) {
-		if (*(*i) == str)
+	for (channel_const_it i = _channels.begin(); i < _channels.end(); ++i) {
+		if (i->get_name_channel() == str)
 			return true;
 	}
 	return false;
-}
-
-void Server::put_chan(const std::string& str) {
-	_chan.push_back(&str);
 }
 
 const std::string Server::get_password() const {
@@ -136,22 +128,14 @@ void Server::add_in_channel(std::string &name, client_const_it it) {
 }
 
 void Server::exit_client(client_it client) {
-	if (client->get_nick().size() != 0) {
-		for (str_pointer_it i = _nicks.begin(); i <= _nicks.end(); ++i) {
-			if (**i == client->get_nick()) {
-				_nicks.erase(i);
-				break;
-			}
-		}
+	if (find_nick(client->get_nick())) {
+		close(client->get_socket());
+		_clients.erase(client);
 	}
-	close(client->get_socket());
-	_clients.erase(client);
 }
 
 void Server::restart_server() {
-	_chan.erase(_chan.begin(), _chan.end());
 	_channels.erase(_channels.begin(), _channels.end());
-	_nicks.erase(_nicks.begin(), _nicks.end());
 	while (_clients.size() != 1) {
 		close(_clients.rbegin()->get_socket());
 		_clients.pop_back();
@@ -163,9 +147,7 @@ void Server::restart_server() {
 void Server::reserve_put_vectors(int& sock, struct sockaddr_in& serv) {
 	try {
 		_clients.reserve(COUNT_CLIENTS);
-		_nicks.reserve(COUNT_CLIENTS);
 		_channels.reserve(COUNT_CHANNEL);
-		_chan.reserve(COUNT_CHANNEL);
 	}
 	catch(const std::exception&) {
 		exit(8);
@@ -184,30 +166,30 @@ void Server::new_client() {
 		exit(5);
 	_clients.push_back(Client(new_socket, client));
 
-	std::cout << "New client: IP: " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
+	std::cout << "New client: IP " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
 
-}
-
-void f(std::string& str, char *b, int count_bytes) {
-	int i = 0;
-	while (i < count_bytes) {
-		str.push_back(b[i]);
-		++i;
-	}
 }
 
 void Server::old_client(client_it &i) {
 	char buf[BUFFER_SIZE];
 	std::memset(buf, 0, BUFFER_SIZE);
-	int count_bytes;
+	int count_bytes = 0;
 	std::string message;
-	fcntl(i->get_socket(), F_SETFL, O_NONBLOCK);
 	while ((count_bytes = recv(i->get_socket(), buf, BUFFER_SIZE, 0)) > 0)
-		f(message, buf, count_bytes);
+	{
+		message += buf;
+		if (message.back() == '\n')
+			break ;
+		memset(buf, 0, BUFFER_SIZE);
+	}
 	if (count_bytes == 0) {
-		std::cout << "Client exit! IP:" << i->get_ip_address() << "\n";
 		exit_client(i);
+		std::cout << "Bye!\n";
 		return;
+	}
+	else if (count_bytes == -1) {
+		std::cout << "count_bytes == -1" << std::endl;
+		exit(6);
 	}
 	if (message.back() == '\n') {
 		message.pop_back();
@@ -221,4 +203,9 @@ void Server::old_client(client_it &i) {
 		Handle_command handle(i, tmp, this);
 		handle.handle_exec();
 	}
+}
+
+void Server::remove_channel(channel_it &it)
+{
+	_channels.erase(it);
 }

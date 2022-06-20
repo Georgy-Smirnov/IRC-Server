@@ -6,7 +6,7 @@ int main(int argc, const char **argv) {
 		std::cout << "Use: " << argv[0] << " port password\n";
 		return 0;
 	}
-	int port = std::stoi(argv[1]);
+	int port = std::stoi(argv[1]); // C++ 11 
 	if (port < 1024 || port > 65535) {
 		std::cout << "1024 < port < 65535\n";
 		return 0;

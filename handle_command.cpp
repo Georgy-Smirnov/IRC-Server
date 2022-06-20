@@ -63,7 +63,6 @@ std::string Handle_command::do_for_login() {
 		if (_it->get_real_name().size() != 0 && !_it->get_password())
 			return put_in_answer("");
 		_it->put_nick(_parametrs[0]);
-		_server->put_nick(_it->get_nick());
 		return (welcome());		
 	}
 	else if (_command == "USER") {
@@ -151,6 +150,8 @@ void Handle_command::execute() {
 		ping();
 	else if (_command == "PONG") 
 		pong();
+	else if (_command == "PART")
+		part();
 	else {
 		sendd(_it->get_socket(), put_in_answer(" 421 " + _command + ERR_UNKNOWNCOMMAND));
 	
@@ -169,7 +170,7 @@ std::string Handle_command::create_priv_message(std::string& name, std::string& 
 		rezult += " NOTICE ";
 	else
 		rezult += " PRIVMSG ";
-	rezult += name + " : " + mes + "\r\n";
+	rezult += name + " :" + mes + "\r\n";
 	return rezult;
 }
 
@@ -186,6 +187,7 @@ void Handle_command::privmsg(bool flag) {
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
 		if (_server->find_nick(tmp)) {
+			std::cout << "tmp: " << tmp << std::endl;
 			std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
 			sendd(_server->get_socket_client(tmp), answer);
 		}
@@ -269,9 +271,54 @@ void Handle_command::join() {
 
 }
 
+void Handle_command::part() {
+	if (_parametrs.size() != 1) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return ;
+	}
+	std::string one = _parametrs[0];
+	while (one.size()) {
+		std::string tmp = one.substr(0, one.find(','));
+		if (tmp.front() != '#') {
+			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHCHANNEL));
+			one.erase(0, tmp.length());
+			one.erase(0, one.find_first_not_of(','));
+			continue;
+		}
+		if (!_server->find_chan(tmp)) {
+			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHCHANNEL));
+			one.erase(0, tmp.length());
+			one.erase(0, one.find_first_not_of(','));
+			continue;
+		}
+		else {
+			std::cout << _server->get_chanel(tmp)->get_names_users() << std::endl;
+			if (_server->get_chanel(tmp)->get_names_users().find(_it->get_nick()) == std::string::npos)
+			{
+				sendd(_it->get_socket(), put_in_answer(" 442 " + tmp + ERR_NOTONCHANNEL));
+				one.erase(0, tmp.length());
+				one.erase(0, one.find_first_not_of(','));
+				continue;
+			}
+			else {
+				_server->get_chanel(tmp)->remove_from_channel(_it->get_nick());
+				std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
+				sendd(_it->get_socket(), ":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n");
+				_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n", _it);
+				if (_server->get_chanel(tmp)->get_users_num() == 0)
+				one.erase(0, tmp.length());
+				one.erase(0, one.find_first_not_of(','));
+			}
+		}
+
+	}
+
+}
+// 442     ERR_NOTONCHANNEL
+//                         "<channel> :You're not on that channel"
+
 void Handle_command::create_channels(std::string& tmp) {
 	_server->create_channels(_parametrs[0], _it);
-	_server->put_chan(((_server->get_chanel(_parametrs[0]))->get_name_channel()));
 	std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
 	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
 	sendd(_it->get_socket(), put_in_answer(_server->get_chanel(_parametrs[0])->get_topic_message(_it)));

@@ -26,6 +26,7 @@ class Handle_command {
 	void kill(void);
 	void restart(void);
 	void join(void);
+	void part(void);
 	void mode(void);
 	void topic(void);
 	void invite(void);

@@ -29,5 +29,8 @@
 #define ERR_NEEDMOREPARAMS " 461  OPER :Not enough parameters\r\n"
 #define ERR_PASSWDMISMATCH " 464  :Password incorrect\r\n"
 #define ERR_NOPRIVILEGES " :Permission Denied- You're not an IRC operator\r\n"
+#define ERR_NOTONCHANNEL " :You're not on that channel\r\n"
 
+// 442     ERR_NOTONCHANNEL
+//                         "<channel> :You're not on that channel"
 #endif
