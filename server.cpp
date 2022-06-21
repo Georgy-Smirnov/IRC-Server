@@ -126,9 +126,28 @@ void Server::add_in_channel(std::string &name, client_const_it it) {
 	get_chanel(name)->add_in_channel(it);
 }
 
+// :a!a@127.0.0.1 QUIT :Client exited
+// rphoebe!rphoebe@127.0.0.1 QUIT :Client exited
+// :rphoebe!rphoebe@127.0.0.1 JOIN :#1
+void Server::exit_channels(client_it client)
+{
+	channel_it It = _channels.begin();
+	channel_it Ite = _channels.end();
+
+	for ( ; It != Ite; ++It)
+	{
+		if (It->find_nick_in_channel(client->get_nick()))
+		{
+			It->send_in_channels(std::string(":" + client->str_for_irc() + " QUIT :Client exited\r\n"), client, false);
+			It->remove_from_channel(client->get_nick());
+		}
+	}
+}
+
 void Server::exit_client(client_it client) {
 	if (find_nick(client->get_nick())) {
 		close(client->get_socket());
+		exit_channels(client);
 		_clients.erase(client);
 	}
 }
