@@ -1,3 +1,5 @@
+
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -55,82 +57,23 @@ void auth(int sock, const std::string &pass)
 	}
 }
 
-void draw_tree(int sock, std::string const &name)
-{
-	// std::string s1("PRIVMSG " + name + " :|......._-_.......|" + "\r\n");
-	// std::string s2("PRIVMSG " + name + " :|..../~~...~~\\....|" + "\r\n");
-	// std::string s3("PRIVMSG " + name + " :|./~~.........~~\\.|" + "\r\n");
-	// std::string s4("PRIVMSG " + name + " :|{...............}|" + "\r\n");
-	// std::string s5("PRIVMSG " + name + " :|.\\.._-.....-_../.|" + "\r\n");
-	// std::string s6("PRIVMSG " + name + " :|...~..\\\\.//..~...|" + "\r\n");
-	// std::string s7("PRIVMSG " + name + " :|_-.-...|.|._-._..|" + "\r\n");
-	// std::string s8("PRIVMSG " + name + " :|.._.-..|.|...-_..|" + "\r\n");
-	// std::string s9("PRIVMSG " + name + " :|......//.\\\\......|" + "\r\n");
-	//  std::string s1("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░█████░░░░░█████" + "\r\n");
-	//  std::string s2("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░███░░░░██░██░░░░░███" + "\r\n");
-	//  std::string s3("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░██░░░░░░░░██░░░░░░░░░░██" + "\r\n");
-	//  std::string s4("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░██░░░░░░░░░░█░░░░░░░░░░░░██" + "\r\n");
-	//  std::string s5("PRIVMSG " + name + " ░░░░░░░░██████░░░░░░░░░░░░██░░░░░░░░░░░░░░░░░░░░░░░░██" + "\r\n");
-	//  std::string s6("PRIVMSG " + name + " ░░░░░███████████░░░░░░░░██░░░░░░░░░░░░░░░░░░░░░░░░██" + "\r\n");
-	//  std::string s7("PRIVMSG " + name + " ░░░░█████████████░░░░░░░██░░░░░░░░░░░░░░░░░░░░░░░██" + "\r\n");
-	//  std::string s8("PRIVMSG " + name + " ░░░███████████████░░░░░░██░░░░░░░░░░░░░░░░░░░░░░██" + "\r\n");
-	//  std::string s9("PRIVMSG " + name + " ░░░████████████████░░░░░░██░░░░░░░░░░░░░░░░░░░██" + "\r\n");
-	// std::string s10("PRIVMSG " + name + " ░░░████████████████░░░░░░░██░░░░░░░░░░░░░░░░░██" + "\r\n");
-	// std::string s11("PRIVMSG " + name + " ░░░░███████████████░░░░░░░███░░░░░░░░░░░░░░░██" + "\r\n");
-	// std::string s12("PRIVMSG " + name + " ░░░░░░░███████████░░░░░░░██░░██░░░░░░░░░░░░░██" + "\r\n");
-	// std::string s13("PRIVMSG " + name + " ░░░░░░░░░░░███████░░░░░░████░░░██░░░░░░░░░░██" + "\r\n");
-	// std::string s14("PRIVMSG " + name + " ░░░░██████░░██████████████░░░░░██░░░░░██" + "\r\n");
-	// std::string s15("PRIVMSG " + name + " ░░██████████████████████░░░░░░░░██░░██" + "\r\n");
-	// std::string s16("PRIVMSG " + name + " ░████████████████████░░░░░░░░░░░░░████" + "\r\n");
-	// std::string s17("PRIVMSG " + name + " ██░█████░████████████░░░░░░░░░░░░░░░█" + "\r\n");
-	// std::string s18("PRIVMSG " + name + " █░░█░██░░████████████" + "\r\n");
-	// std::string s19("PRIVMSG " + name + " ░░░░░█░░████████████" + "\r\n");
-	// std::string s20("PRIVMSG " + name + " ░░░░░░░█████████████" + "\r\n");
-	// std::string s21("PRIVMSG " + name + " ░░░░░░░██████████████" + "\r\n");
-	// std::string s22("PRIVMSG " + name + " ░░░░░░░███████████████" + "\r\n");
-	// std::string s23("PRIVMSG " + name + " ░░░░░░░░███████████████" + "\r\n");
-	// std::string s24("PRIVMSG " + name + " ░░░░░░░███████░░████████" + "\r\n");
-	// std::string s25("PRIVMSG " + name + " ░░░░░░███████░░░░░███████" + "\r\n");
-	// std::string s26("PRIVMSG " + name + " ░░░░█████████░░░░░░░░██████" + "\r\n");
-
-
-	// send(sock, s1.c_str(), s1.length(), 0);
-	// send(sock, s2.c_str(), s2.length(), 0);
-	// send(sock, s3.c_str(), s3.length(), 0);
-	// send(sock, s4.c_str(), s4.length(), 0);
-	// send(sock, s5.c_str(), s5.length(), 0);
-	// send(sock, s6.c_str(), s6.length(), 0);
-	// send(sock, s7.c_str(), s7.length(), 0);
-	// send(sock, s8.c_str(), s8.length(), 0);
-	// send(sock, s9.c_str(), s9.length(), 0);
-	// send(sock, s10.c_str(), s10.length(), 0);
-	// send(sock, s11.c_str(), s11.length(), 0);
-	// send(sock, s12.c_str(), s12.length(), 0);
-	// send(sock, s13.c_str(), s13.length(), 0);
-	// send(sock, s14.c_str(), s14.length(), 0);
-	// send(sock, s15.c_str(), s15.length(), 0);
-	// send(sock, s16.c_str(), s16.length(), 0);
-	// send(sock, s17.c_str(), s17.length(), 0);
-	// send(sock, s18.c_str(), s18.length(), 0);
-	// send(sock, s19.c_str(), s19.length(), 0);
-	// send(sock, s20.c_str(), s20.length(), 0);
-	// send(sock, s21.c_str(), s21.length(), 0);
-	// send(sock, s22.c_str(), s22.length(), 0);
-	// send(sock, s23.c_str(), s23.length(), 0);
-	// send(sock, s24.c_str(), s24.length(), 0);
-	// send(sock, s25.c_str(), s25.length(), 0);
-	// send(sock, s26.c_str(), s26.length(), 0);
-}
 
 void draw_hello(int sock, std::string const &name){
-	 std::string s1("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
-	 std::string s2("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█░░░░░░░█░░░░░░██████░░░░" + "\r\n");
-	 std::string s3("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░" + "\r\n");
-	 std::string s4("PRIVMSG " + name + " ░░░█████░░░░░████░░░░█░░░░░░░█░░░░░░░█░░░░█░░░░" + "\r\n");
-	 std::string s5("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░" + "\r\n");
-	 std::string s6("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█████░░█████░░░██████░░░" + "\r\n");
-	 std::string s7("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
+	std::string s1("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
+	std::string s2("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█░░░░░░░█░░░░░░██████░░░░" + "\r\n");
+	std::string s3("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░" + "\r\n");
+	std::string s4("PRIVMSG " + name + " ░░░█████░░░░░████░░░░█░░░░░░░█░░░░░░░█░░░░█░░░░" + "\r\n");
+	std::string s5("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░" + "\r\n");
+	std::string s6("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█████░░█████░░░██████░░░" + "\r\n");
+	std::string s7("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
 	
+	std::string s8("PRIVMSG " + name + " ██░░░░░██░███████░░█████░░████████░██░░░██░███████░██████░░" + "\r\n");
+	std::string s9("PRIVMSG " + name + " ██░░░░░██░██░░░░░░██░░░██░░░░██░░░░██░░░██░██░░░░░░██░░░██░" + "\r\n");
+	std::string s10("PRIVMSG " + name + " ██░░█░░██░█████░░░███████░░░░██░░░░███████░█████░░░██████░░" + "\r\n");
+	std::string s11("PRIVMSG " + name + " ██░███░██░██░░░░░░██░░░██░░░░██░░░░██░░░██░██░░░░░░██░░░██░" + "\r\n");
+	std::string s12("PRIVMSG " + name + " ░███░███░░███████░██░░░██░░░░██░░░░██░░░██░███████░██░░░██░" + "\r\n");
+	std::string s13("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
+
 	send(sock, s1.c_str(), s1.length(), 0);
 	send(sock, s2.c_str(), s2.length(), 0);
 	send(sock, s3.c_str(), s3.length(), 0);
@@ -138,6 +81,12 @@ void draw_hello(int sock, std::string const &name){
 	send(sock, s5.c_str(), s5.length(), 0);
 	send(sock, s6.c_str(), s6.length(), 0);
 	send(sock, s7.c_str(), s7.length(), 0);
+	send(sock, s8.c_str(), s8.length(), 0);
+	send(sock, s9.c_str(), s9.length(), 0);
+	send(sock, s10.c_str(), s10.length(), 0);
+	send(sock, s11.c_str(), s11.length(), 0);
+	send(sock, s12.c_str(), s12.length(), 0);
+	send(sock, s13.c_str(), s13.length(), 0);
 
 }
 
@@ -212,43 +161,43 @@ void message_processing(int sock, std::string &message)
 	// 	names.insert(name);
 	// }
 	if (ret.second==false) {
-		draw_msg(sock, name, ":I am a weather bot. I can predict a weather. You shoud type the name of the \"city\" without white spaces. If you will joke with me, I will joke with you :)\r\n");
+		draw_msg(sock, name, ":I am a weather bot. I can predict a weather. You shoud type the name of the \"city\" without white spaces. If you will JOKE with me, I will JOKE with you :)\r\n");
 	}
-	std::cout << "MP start\n";
 	// if((msg.compare("weather\r\n")))
 	// 	draw_msg(sock, name, ":Oh, but I am not so smart. I dont't know what do you mean...\r\n");
 	// else
 	// {
 		// if(msg.)
-		std::string temp = msg.substr(0, temp.size() -2);
-		std::string city = "curl wttr.in/" + temp + "?format=3 > weather";
-		std::cout << GREEN <<  city << SHALLOW << std::endl;
-		system(city.c_str());
-		std::string line;
-	
-		std::ifstream in("weather"); // окрываем файл для чтения
-		if (in.is_open())
-		{
-			// for(int i = 0; i < 2; ++i){
-				getline(in, line);
-				std::cout << "line: " << line << std::endl;
-				std::string newLine = ":" +line + "\r\n";
-				draw_msg(sock, name, newLine);
-				// line.erase();
-			// }
-			// for(int i = 0; i < 1; i++)
-			// {
-			// 	getline(in, line);
-			// 	// std::size_t found = line.find_first_of("abcdefghijklmnopqrstuvwxyz1234567890");
-			// 	// std::cout <<found << std::endl;
-			// 	std::string newLine = line.substr(31, line.size() - 31);
-			// 	newLine = ":" + newLine + "\r\n";
-			// 	std::cout << newLine << std::endl;
-			// 	draw_msg(sock, name, newLine);
-			// 	newLine.erase();
-			// }
-		}
-		in.close();
+
+			std::string temp = msg.substr(0, msg.size() - 2);
+			std::string city = "curl wttr.in/" + temp + "?format=3 > weather";
+			std::cout << GREEN <<  city << SHALLOW << std::endl;
+			system(city.c_str());
+			std::string line;
+
+			std::ifstream in("weather"); // окрываем файл для чтения
+			if (in.is_open())
+			{
+				// for(int i = 0; i < 2; ++i){
+					getline(in, line);
+					std::cout << "line: " << line << std::endl;
+					std::string newLine = ":" +line + "\r\n";
+					draw_msg(sock, name, newLine);
+					// line.erase();
+				// }
+				// for(int i = 0; i < 1; i++)
+				// {
+				// 	getline(in, line);
+				// 	// std::size_t found = line.find_first_of("abcdefghijklmnopqrstuvwxyz1234567890");
+				// 	// std::cout <<found << std::endl;
+				// 	std::string newLine = line.substr(31, line.size() - 31);
+				// 	newLine = ":" + newLine + "\r\n";
+				// 	std::cout << newLine << std::endl;
+				// 	draw_msg(sock, name, newLine);
+				// 	newLine.erase();
+				// }
+			}
+			in.close();
 		// draw_msg(sock, name, ":curl wttr.in\r\n");
 	// }
 	// draw_msg(sock, name, ":Hello, my friend! I can predict a weather. You shoud type \"weather\"\r\n");
@@ -258,7 +207,7 @@ void message_processing(int sock, std::string &message)
 	// else{
 	// 	draw_msg(sock, name, ":Oh, but I am not so smart. I dont't know what do you mean...\r\n");
 	// }
-	std::cout << "MP end\n";
+
 }
 
 
@@ -305,3 +254,4 @@ int main(int argc, char **argv)
 		// std::cout << buf << std::endl;
 	}
 }
+
