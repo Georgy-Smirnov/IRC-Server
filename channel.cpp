@@ -93,6 +93,10 @@ bool Channel::find_nick_in_channel(const std::string& nick) {
 	return false;
 }
 
+bool Channel::check_operator(const std::string& nick) {
+	return _clients[0]->get_nick() == nick;
+}
+
 void Channel::put_invite(client_const_it it) {
 	_invite.push_back(&(*it));
 }

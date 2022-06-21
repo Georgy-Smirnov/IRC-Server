@@ -24,6 +24,7 @@ public:
 	short kick_from_channel(std::string& n, client_const_it it);
 	bool find_mode(char c) const;
 	bool find_nick_in_channel(const std::string& nick);
+	bool check_operator(const std::string& nick);
 	void put_invite(client_const_it it);
 	void erase_invite(client_const_it it);
 	bool find_invite(client_const_it it);

@@ -245,7 +245,7 @@ void Handle_command::kill() {
 
 void Handle_command::restart() {
 	if (!_it->get_operator()) {
-		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_NOPRIVILEGES));
 		return;
 	}
 	_server->restart_server();
@@ -387,8 +387,22 @@ void Handle_command::topic() {
 		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
 		return;
 	}
-	_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1], _it);
-	_server->get_chanel(_parametrs[0])->send_in_channels(":" + _it->str_for_irc() + " TOPIC " + _parametrs[0] + " :" + _parametrs[1] + "\r\n", _it, true);
+	if (_server->get_chanel(_parametrs[0])->find_mode('t')) {
+		if (!_server->get_chanel(_parametrs[1])->check_operator(_parametrs[0])) {
+			sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+			return;		
+		}
+		_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1], _it);
+		_server->get_chanel(_parametrs[0])->send_in_channels(":" + _it->str_for_irc() + " TOPIC " + _parametrs[0] + " :" + _parametrs[1] + "\r\n", _it, true);
+	}
+	else {
+		if (!_server->get_chanel(_parametrs[0])->find_nick_in_channel(_it->get_nick())) {
+			sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+			return;		
+		}
+		_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1], _it);
+		_server->get_chanel(_parametrs[0])->send_in_channels(":" + _it->str_for_irc() + " TOPIC " + _parametrs[0] + " :" + _parametrs[1] + "\r\n", _it, true);
+	}
 }
 
 void Handle_command::invite() {
@@ -404,8 +418,8 @@ void Handle_command::invite() {
 		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
 		return;
 	}
-	if (!_server->get_chanel(_parametrs[1])->find_nick_in_channel(_parametrs[0])) {
-		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+	if (!_server->get_chanel(_parametrs[1])->check_operator(_parametrs[0])) {
+		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
 		return;		
 	}
 	_server->get_chanel(_parametrs[1])->put_invite(_server->get_client(_parametrs[0]));
