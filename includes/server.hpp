@@ -43,12 +43,12 @@ public:
 	void add_in_channel(std::string &name, client_const_it it);
 	void exit_client(client_it client);
 	void restart_server();
+	void remove_channel(channel_it const &it);
 private:
 	void reserve_put_vectors(int& sock, struct sockaddr_in& serv);
 	void new_client();
 	void old_client(client_it &i);
 	int put_in_set(fd_set* read_set);
-	void remove_channel(channel_it &it);
 	
 
 };
