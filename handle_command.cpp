@@ -389,7 +389,7 @@ void Handle_command::topic() {
 		return;
 	}
 	if (_server->get_chanel(_parametrs[0])->find_mode('t')) {
-		if (!_server->get_chanel(_parametrs[1])->check_operator(_parametrs[0])) {
+		if (!_server->get_chanel(_parametrs[0])->check_operator(_it)) {
 			sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
 			return;		
 		}
@@ -419,7 +419,7 @@ void Handle_command::invite() {
 		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
 		return;
 	}
-	if (!_server->get_chanel(_parametrs[1])->check_operator(_parametrs[0])) {
+	if (!_server->get_chanel(_parametrs[1])->check_operator(_it)) {
 		sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
 		return;		
 	}

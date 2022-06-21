@@ -56,7 +56,7 @@ short Channel::put_in_mode(std::string& m, client_const_it it) {
 				return 3;
 			if (_mode.find(m[i]) == std::string::npos)
 				return 2;
-			send_in_channels(":" + it->str_for_irc() + " MODE " + _name + " +" + m[i] + "\r\n", it, true);
+			send_in_channels(":" + it->str_for_irc() + " MODE " + _name + " -" + m[i] + "\r\n", it, true);
 			_mode.erase(_mode.find(m[i]));
 		}
 	}
@@ -93,8 +93,8 @@ bool Channel::find_nick_in_channel(const std::string& nick) {
 	return false;
 }
 
-bool Channel::check_operator(const std::string& nick) {
-	return _clients[0]->get_nick() == nick;
+bool Channel::check_operator(client_const_it it) {
+	return _clients[0] == &(*it);
 }
 
 void Channel::put_invite(client_const_it it) {
