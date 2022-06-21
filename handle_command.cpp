@@ -193,7 +193,6 @@ void Handle_command::privmsg(bool flag) {
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
 		if (_server->find_nick(tmp)) {
-			std::cout << "tmp: " << tmp << std::endl;
 			std::string answer = create_priv_message(tmp, _parametrs[_parametrs.size() - 1], flag);
 			sendd(_server->get_socket_client(tmp), answer);
 		}
