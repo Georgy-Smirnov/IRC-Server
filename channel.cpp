@@ -78,6 +78,47 @@ short Channel::kick_from_channel(std::string& m, client_const_it it) {
 	return 2;
 }
 
+bool Channel::find_mode(char c) const {
+	if (_mode.find(c) == std::string::npos) {
+		return false;
+	}
+	return true;
+}
+
+bool Channel::find_nick_in_channel(const std::string& nick) {
+	for (client_const_point_it i = _clients.begin(); i < _clients.end(); ++i) {
+		if ((*i)->get_nick() == nick)
+			return true;
+	}
+	return false;
+}
+
+void Channel::put_invite(client_const_it it) {
+	_invite.push_back(&(*it));
+}
+
+void Channel::erase_invite(client_const_it it) {
+	if (_invite.size() == 0)
+		return;
+	for (client_const_point_it i = _invite.begin(); i < _invite.end(); ++i) {
+		if (*i == &(*it)) {
+			_invite.erase(i);
+			return;
+		}
+	}
+}
+
+bool Channel::find_invite(client_const_it it) {
+	if (_invite.size() == 0)
+		return false;
+	for (client_const_point_it i = _invite.begin(); i < _invite.end(); ++i) {
+		if (*i == &(*it)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 const std::string Channel::get_names_users() const {
 	std::string rezult = ":@";
 	for (client_const_point_it i = _clients.begin(); i < _clients.end(); ++i) {
@@ -90,6 +131,10 @@ const std::string& Channel::get_name_channel() const {
 	return _name;
 }
 
+const std::string& Channel::get_topic() const {
+	return _topic;
+}
+
 const std::string Channel::get_topic_message(client_const_it it) const {
 	if (_topic.size() == 0)
 		return " 331 " + it->get_nick() + " " + _name + RPL_NOTOPIC;
@@ -100,6 +145,6 @@ const std::string Channel::get_names_message(client_const_it it) const {
 	return " 353 " + it->get_nick() + " = " + _name + " " + get_names_users() + "\r\n";
 }
 
-const int Channel::get_users_num() const {
+const int Channel::get_count_users() const {
 	return _clients.size();
 }

@@ -153,8 +153,6 @@ void Handle_command::execute() {
 		list();
 	else if (_command == "PING") 
 		ping();
-	else if (_command == "PONG") 
-		pong();
 	else if (_command == "PART")
 		part();
 	else {
@@ -310,7 +308,7 @@ void Handle_command::part() {
 				std::string names = (_server->get_chanel(_parametrs[0]))->get_names_users();
 				sendd(_it->get_socket(), ":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n");
 				_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n", _it, false);
-				if (_server->get_chanel(tmp)->get_users_num() == 0)
+				if (_server->get_chanel(tmp)->get_count_users() == 0)
 				one.erase(0, tmp.length());
 				one.erase(0, one.find_first_not_of(','));
 			}
@@ -337,6 +335,17 @@ void Handle_command::create_channels(std::string& tmp) {
 }
 
 void Handle_command::join_in_channels(std::string& tmp) {
+	if (_server->get_chanel(tmp)->find_nick_in_channel(_it->get_nick())) {
+		sendd(_it->get_socket(), put_in_answer(" 443 " + _it->get_nick() + " " + tmp + ERR_USERONCHANNEL));
+		return;		
+	}
+	if (_server->get_chanel(tmp)->find_mode('i')) {
+		if (!_server->get_chanel(tmp)->find_invite(_it)) {
+			sendd(_it->get_socket(), put_in_answer(" 404 " + tmp + ERR_NOSUCHCHANNEL));
+			return;
+		}
+	}
+	_server->get_chanel(tmp)->erase_invite(_it);
 	_server->add_in_channel(tmp, _it);
 	std::string names = (_server->get_chanel(tmp))->get_names_users();
 	_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n", _it, true);
@@ -391,10 +400,15 @@ void Handle_command::invite() {
 		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHNICK));
 		return;
 	}
-		if (!_server->find_chan(_parametrs[1])) {
+	if (!_server->find_chan(_parametrs[1])) {
 		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
 		return;
 	}
+	if (!_server->get_chanel(_parametrs[1])->find_nick_in_channel(_parametrs[0])) {
+		sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
+		return;		
+	}
+	_server->get_chanel(_parametrs[1])->put_invite(_server->get_client(_parametrs[0]));
 	sendd(_server->get_socket_client(_parametrs[0]), put_in_answer(" INVITE " + _parametrs[0] + " :" + _parametrs[1] + "\r\n"));
 }
 
@@ -447,7 +461,17 @@ void Handle_command::who() {
 	}
 }
 
-void Handle_command::list(void) {}
+void Handle_command::list(void) {
+	if (_parametrs.size() != 0) {
+		sendd(_it->get_socket(), put_in_answer(ERR_NEEDMOREPARAMS));
+		return;
+	}
+	for (size_t i = 0; i < _server->count_channels(); ++i) {
+		Channel& tmp = _server->return_channel(i);
+		sendd(_it->get_socket(), put_in_answer(" 322 " + _it->get_nick() + " " + tmp.get_name_channel() + " " + std::to_string(tmp.get_count_users()) + " :" + tmp.get_topic() + "\r\n"));
+	}
+	sendd(_it->get_socket(), put_in_answer(" 323 " + _it->get_nick() + " " + RPL_ENDOFLIST));
+}
 
 void Handle_command::ping() {
 	typedef std::vector<std::string>::iterator iter;
@@ -459,10 +483,3 @@ void Handle_command::ping() {
 	answer += "\r\n";
 	sendd(_it->get_socket(), answer);
 }
-
-void Handle_command::pong() {
-	if (_parametrs.size() != 1)
-		return _server->exit_client(_it);
-	if (_parametrs[0] != _server->get_name_server())
-		return _server->exit_client(_it);
-}	

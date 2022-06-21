@@ -13,6 +13,7 @@ private:
 	std::string					_topic;
 	std::string					_mode;
 	std::vector<const Client*> 	_clients;
+	std::vector<const Client*> 	_invite;
 public:
 	Channel(std::string& name, client_const_it& it);
 	void add_in_channel(client_const_it& it);
@@ -21,13 +22,18 @@ public:
 	void put_in_topic(std::string& t, client_const_it it);
 	short put_in_mode(std::string& m, client_const_it it);
 	short kick_from_channel(std::string& n, client_const_it it);
+	bool find_mode(char c) const;
+	bool find_nick_in_channel(const std::string& nick);
+	void put_invite(client_const_it it);
+	void erase_invite(client_const_it it);
+	bool find_invite(client_const_it it);
 
 	const std::string get_names_users() const;
-	const std::string& get_topic() const;
 	const std::string& get_name_channel() const;
+	const std::string& get_topic() const;
 	const std::string get_topic_message(client_const_it it) const;
 	const std::string get_names_message(client_const_it it) const;
-	const int get_users_num() const;
+	const int get_count_users() const;
 };
 
 #endif

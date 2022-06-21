@@ -34,7 +34,6 @@ class Handle_command {
 	void who(void);
 	void list(void);
 	void ping(void);
-	void pong(void);
 
 	std::string create_priv_message(std::string& name, std::string& mes, bool flag);
 	std::string create_welc_message();

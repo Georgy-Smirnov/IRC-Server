@@ -31,19 +31,6 @@ void Server::start() {
 	reserve_put_vectors(sock, serv);
 }
 
-int Server::put_in_set(fd_set* read_set) {
-	FD_ZERO(read_set);
-	int max = 0;
-	client_const_it first = _clients.begin();
-	while (first != _clients.end()) {
-		FD_SET(first->get_socket(), read_set);
-		if (first->get_socket() > max)
-			max = first->get_socket();
-		++first;
-	}
-	return max;
-}
-
 void Server::work() {
 	fd_set read_set;
 	struct sockaddr_in _this, client;
@@ -71,8 +58,16 @@ size_t Server::count_clients() const {
 	return _clients.size();
 }
 
-const std::string Server::get_name_server() const {
-	return _clients[0].get_nick();
+size_t Server::count_channels() const {
+	return _channels.size();
+}
+
+Client& Server::return_client(size_t index) {
+	return _clients[index];
+}
+
+Channel& Server::return_channel(size_t index) {
+	return _channels[index];
 }
 
 bool Server::find_nick(const std::string& str) const {
@@ -89,6 +84,10 @@ bool Server::find_chan(const std::string& str) const {
 			return true;
 	}
 	return false;
+}
+
+const std::string Server::get_name_server() const {
+	return _clients[0].get_nick();
 }
 
 const std::string Server::get_password() const {
@@ -205,11 +204,20 @@ void Server::old_client(client_it &i) {
 	}
 }
 
+int Server::put_in_set(fd_set* read_set) {
+	FD_ZERO(read_set);
+	int max = 0;
+	client_const_it first = _clients.begin();
+	while (first != _clients.end()) {
+		FD_SET(first->get_socket(), read_set);
+		if (first->get_socket() > max)
+			max = first->get_socket();
+		++first;
+	}
+	return max;
+}
+
 void Server::remove_channel(channel_it &it)
 {
 	_channels.erase(it);
-}
-
-Client& Server::return_client(size_t index) {
-	return _clients[index];
 }

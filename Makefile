@@ -19,7 +19,7 @@ SRCS_BOT	=	botislav.cpp
 
 CLANG		=	clang++
 
-CFLAGS		=	-Wall -Werror -Wextra -fsanitize=address -g
+CFLAGS		=	-Wall -Werror -Wextra -g -fsanitize=address 
 
 #===================================>DELETE<===================================#
 
@@ -49,23 +49,23 @@ ${NAME}:	${OBJS}
 
 bot:		${BOT_OBJS}
 			@${CLANG} ${CFLAG} -o ${BOT_NAME} ${OBJS} ${LIB_HEAD}
-			@printf "\033[2K\r${_GREEN} BOT create: '${NAME}'. ${_END}✅\n"
+			@printf "\033[2K\r${_GREEN} BOT create: '${BOT_NAME}'. ${_END}✅\n"
 
 #===========================>COMPILED_SOURCES_RULES<===========================#
 
 %.o:		%.cpp
 			@${CLANG} ${CFLAG} -I ${DIR_HEAD} -c $< -o $@
-			@printf "\033[2K\r$(_YELLOW) Compiling $< $(_END)⌛"		
+			@printf "\033[2K\r${_YELLOW} Compiling $< ${_END}⌛"		
 
 #====================================>CLEAN_RULES<=============================#
 
 clean:
-			@rm -f ${OBJS}
+			@rm -f ${OBJS} ${BOT_OBJS}
 			@printf "\033[2K\r${_RED} '".o"' has been deleted. ${_END}🗑️\n"
 
 fclean:		clean
-			@rm -f ${NAME}
-			@printf "\033[2K\r${_RED} '"${NAME}"' has been deleted. ${_END}🗑️\n"
+			@rm -f ${NAME} ${BOT_NAME}
+			@printf "\033[2K\r${_RED} '"${NAME}"' and '"${BOT_NAME}"' has been deleted. ${_END}🗑️\n"
 
 re:			fclean all
 

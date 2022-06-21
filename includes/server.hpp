@@ -26,34 +26,30 @@ private:
 public:
 	Server(int port, std::string password);
 	~Server();
-
 	void start();
 	void work();
-
 	size_t count_clients() const;
-	const std::string get_name_server() const;
+	size_t count_channels() const;
+	Client& return_client(size_t index);
+	Channel& return_channel(size_t index);
 	bool find_nick(const std::string& str) const;
-
 	bool find_chan(const std::string& str) const;
-
+	const std::string get_name_server() const;
 	const std::string get_password() const;
 	client_it get_client(std::string& name);
 	channel_it get_chanel(std::string& name);
 	const int get_socket_client(std::string& name) const;
-
 	void create_channels(std::string &name, client_const_it it);
 	void add_in_channel(std::string &name, client_const_it it);
-
 	void exit_client(client_it client);
 	void restart_server();
-	Client& return_client(size_t index);
 private:
 	void reserve_put_vectors(int& sock, struct sockaddr_in& serv);
 	void new_client();
 	void old_client(client_it &i);
 	int put_in_set(fd_set* read_set);
-	
 	void remove_channel(channel_it &it);
+	
 
 };
 

@@ -15,12 +15,14 @@
 #define RPL_YOUREOPER " 381 :You are now an IRC operator\r\n"
 #define ERR_YOUREBANNEDCREEP " 465 :You are banned from this server\r\n"
 #define RPL_ENDOFWHO " :End of /WHO list\r\n"
+#define RPL_ENDOFLIST " :End of /LIST\r\n"
 //CHANNELS
 #define RPL_NOTOPIC " :No topic is set\r\n"
 #define RPL_ENDOFNAMES " :End of /NAMES list\r\n"
 #define ERR_CHANOPRIVSNEEDED " :You're not channel operator\r\n"
 #define ERR_KEYSET " :Channel key already set\r\n"
 #define ERR_UMODEUNKNOWNFLAG " 501 :Unknown MODE flag\r\n"
+#define ERR_USERONCHANNEL " :is already on channel\r\n"
 //ERRORS
 #define ERR_NOSUCHNICK " :No such nick/channel\r\n"
 #define ERR_NOSUCHCHANNEL " :No such channel\r\n"
