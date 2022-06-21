@@ -397,7 +397,7 @@ void Handle_command::topic() {
 	}
 	else {
 		if (!_server->get_chanel(_parametrs[0])->find_nick_in_channel(_it->get_nick())) {
-			sendd(_it->get_socket(), put_in_answer(" 482 " + _parametrs[0] + ERR_CHANOPRIVSNEEDED));
+			sendd(_it->get_socket(), put_in_answer(" 401 " + _parametrs[0] + ERR_NOSUCHCHANNEL));
 			return;		
 		}
 		_server->get_chanel(_parametrs[0])->put_in_topic(_parametrs[1], _it);
