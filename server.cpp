@@ -217,7 +217,7 @@ int Server::put_in_set(fd_set* read_set) {
 	return max;
 }
 
-void Server::remove_channel(channel_it &it)
+void Server::remove_channel(channel_it const &it)
 {
 	_channels.erase(it);
 }

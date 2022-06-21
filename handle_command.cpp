@@ -309,6 +309,7 @@ void Handle_command::part() {
 				sendd(_it->get_socket(), ":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n");
 				_server->get_chanel(tmp)->send_in_channels(":" + _it->str_for_irc() + " PART " + ":" + tmp + "\r\n", _it, false);
 				if (_server->get_chanel(tmp)->get_count_users() == 0)
+					_server->remove_channel(_server->get_chanel(tmp));
 				one.erase(0, tmp.length());
 				one.erase(0, one.find_first_not_of(','));
 			}
