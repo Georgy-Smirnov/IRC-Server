@@ -28,6 +28,9 @@ Handle_command::Handle_command(std::vector<Client>::iterator &i, std::string com
 		_parametrs.push_back(tmp);
 		comm.erase(0, tmp.length());
 	}
+	if (_parametrs.back().length() == 0) {
+		_parametrs.pop_back();
+	}
 	std::cout << "=============================================\n";
 	std::cout << "Prefix: \"" << _prefix << "\"" << std::endl;
 	std::cout << "Command: \"" << _command << "\"" << std::endl;
@@ -259,6 +262,7 @@ void Handle_command::join() {
 	std::string one = _parametrs[0];
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
+		std::cout << tmp << "____________\n";
 		if (tmp.front() != '#') {
 			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHCHANNEL));
 			return;
@@ -329,7 +333,7 @@ void Handle_command::send_channel_list(std::string& tmp) {
 }
 
 void Handle_command::create_channels(std::string& tmp) {
-	_server->create_channels(_parametrs[0], _it);
+	_server->create_channels(tmp, _it);
 	std::string names = (_server->get_chanel(tmp))->get_names_users();
 	sendd(_it->get_socket(), ":" + _it->str_for_irc() + " JOIN " + ":" + tmp + "\r\n");
 	send_topic(tmp);
