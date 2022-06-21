@@ -28,8 +28,11 @@ Handle_command::Handle_command(std::vector<Client>::iterator &i, std::string com
 		_parametrs.push_back(tmp);
 		comm.erase(0, tmp.length());
 	}
-	if (_parametrs.back().length() == 0) {
-		_parametrs.pop_back();
+	if (_parametrs.size() != 0)
+	{
+		if (_parametrs.back().length() == 0) {
+			_parametrs.pop_back();
+		}
 	}
 	std::cout << "=============================================\n";
 	std::cout << "Prefix: \"" << _prefix << "\"" << std::endl;
