@@ -57,7 +57,7 @@ short Channel::put_in_mode(std::string& m, client_const_it it) {
 			if (_mode.find(m[i]) == std::string::npos)
 				return 2;
 			send_in_channels(":" + it->str_for_irc() + " MODE " + _name + " -" + m[i] + "\r\n", it, true);
-			_mode.erase(_mode.find(m[i]));
+			_mode.erase(_mode.find(m[i]), 1);
 		}
 	}
 	else

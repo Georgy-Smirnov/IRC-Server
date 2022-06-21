@@ -28,7 +28,7 @@ Handle_command::Handle_command(std::vector<Client>::iterator &i, std::string com
 		_parametrs.push_back(tmp);
 		comm.erase(0, tmp.length());
 	}
-	if (_parametrs.back().length() == 0) {
+	if (_parametrs.size() != 0 && _parametrs.back().length() == 0) {
 		_parametrs.pop_back();
 	}
 	std::cout << "=============================================\n";
@@ -486,6 +486,7 @@ void Handle_command::list(void) {
 		return;
 	}
 	for (size_t i = 0; i < _server->count_channels(); ++i) {
+		std::cout << _server->count_channels() << std::endl;
 		Channel& tmp = _server->return_channel(i);
 		sendd(_it->get_socket(), put_in_answer(" 322 " + _it->get_nick() + " " + tmp.get_name_channel() + " " + std::to_string(tmp.get_count_users()) + " :" + tmp.get_topic() + "\r\n"));
 	}
