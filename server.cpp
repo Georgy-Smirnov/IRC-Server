@@ -99,7 +99,7 @@ Server::client_it Server::get_client(std::string& name) {
 		if (i->get_nick() == name)
 			return i;
 	}
-	return _clients.begin();
+	return _clients.end();
 }
 
 Server::channel_it Server::get_chanel(std::string& name) {
@@ -107,7 +107,7 @@ Server::channel_it Server::get_chanel(std::string& name) {
 		if (i->get_name_channel() == name)
 			return i;
 	}
-	return _channels.begin();
+	return _channels.end();
 }
 
 const int Server::get_socket_client(std::string& name) const {
@@ -146,8 +146,8 @@ void Server::exit_channels(client_it client)
 
 void Server::exit_client(client_it client) {
 	if (find_nick(client->get_nick())) {
-		close(client->get_socket());
 		exit_channels(client);
+		close(client->get_socket());
 		_clients.erase(client);
 	}
 }

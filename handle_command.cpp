@@ -366,6 +366,7 @@ void Handle_command::mode() {
 		return;
 	}
 	if (_parametrs.size() == 2) {
+		std::cout << &(*_it) << " WTF???\n";
 		short status = _server->get_chanel(_parametrs[0])->put_in_mode(_parametrs[1], _it);
 		switch (status)
 		{

@@ -17,11 +17,13 @@ void Channel::remove_from_channel(const std::string &name) {
 		if ((*It)->get_nick() == name)
 			break ;
 	}
+	std::cout << _clients[0] << "_" << &_clients[0] << std::endl;
 	if (It != Ite)
 	{
 		_clients.erase(It);
 		// std::cout << (*It)->get_nick() << " left channel" << std::endl;
 	}
+	std::cout << _clients[0] << "_" << &_clients[0] << std::endl;
 }
 
 void Channel::send_in_channels(std::string str, client_const_it it, bool ret_message) {
