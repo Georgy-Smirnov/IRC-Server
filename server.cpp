@@ -134,6 +134,17 @@ void Server::exit_channels(client_it client) {
 			it->fix_addr_offset(&(*client));
 		}
 	}
+	channel_it It = _channels.begin();
+	while (It != _channels.end())
+	{
+		if (It->get_count_users() == 0)
+		{
+			_channels.erase(It);
+			It = _channels.begin();
+		}
+		else
+			++It;
+	}
 }
 
 void Server::exit_client(client_it client) {
