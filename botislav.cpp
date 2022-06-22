@@ -24,6 +24,7 @@
 #define BRED "\033[7;31m"
 #define BGBLUE "\033[44m"
 //colors!!!!!!!!
+
 std::map < std::string, int > names;
 bool work = true;
 int sock_sig = 0;
@@ -31,7 +32,6 @@ int sock_sig = 0;
 void sig_handler(int signal)
 {
 	(void)signal;
-	// std::cout << "Bliiin" << std::endl;
 	work = false;
 	send(sock_sig, "QUIT\r\n", 6, 0);
 }
@@ -45,14 +45,34 @@ void auth(int sock, const std::string &pass)
 		std::cout << "Could not auth. Pass error" << std::endl;
 		exit (1);
 	}
+	if (send(sock, user_.c_str(), user_.length(), 0) < 0)
+	{
+		std::cout << "Could not auth. User error" << std::endl;
+		exit (1);
+	}
 	if (send(sock, nick_.c_str(), nick_.length(), 0) < 0)
 	{
 		std::cout << "Could not auth. Nick error" << std::endl;
 		exit (1);
 	}
-	if (send(sock, user_.c_str(), user_.length(), 0) < 0)
-	{
-		std::cout << "Could not auth. User error" << std::endl;
+	char bufread[512];
+	memset(bufread, 0, 512);
+	int res = recv(sock, bufread, 512, 0);
+	if (res <= 0) {
+		std::cout << "There is no connection to server"<< std::endl;
+		exit (1);
+	}
+	std::cout << RED << "auth" << SHALLOW << std::endl;
+	std::string frombuf(bufread);
+	std::string m("Welcome to the Internet");
+	std::string l("Password incorrect");
+	std::cout << RED  << frombuf << SHALLOW << std::endl;
+	if (frombuf.find(l) != std::string::npos){
+		std::cout << "Sorry, password is incorrect!\n";
+		exit (1);
+	}
+	if (frombuf.find(m) == std::string::npos){
+		std::cout << "Sorry, but user bot is already exists!\n";
 		exit (1);
 	}
 }
@@ -92,7 +112,7 @@ void draw_hello(int sock, std::string const &name){
 
 void draw_msg(int sock, std::string const &name, std::string const &msg)
 {
-	std::string s1("PRIVMSG " + name + " " + msg);
+	std::string s1("PRIVMSG " + name + " :" + msg );
 	send(sock, s1.c_str(), s1.length(), 0);
 }
 
@@ -115,7 +135,7 @@ std::string extract_nick(std::string &message)
 	return (ret);
 }
 
-// :b!b@127.0.0.1 PRIVMSG a : Hello
+// :b!b@127.0.0.1 PRIVMSG a :Hello
 std::string extract_msg(std::string &message)
 {
 	std::cout << RED << "message: " << message << SHALLOW << std::endl;
@@ -141,13 +161,30 @@ std::string extract_msg(std::string &message)
 	return (ret);
 }
 
-void message_processing(int sock, std::string &message)
+int get_socket_weather()
 {
+	char buf[1024];
+	int sock_w;
+	struct sockaddr_in addr;
+	sock_w = socket(AF_INET, SOCK_STREAM, 0);
+	if(sock_w < 0)
+		exit (1);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(80);
+	inet_aton("5.9.243.187", &(addr.sin_addr));
+	if(connect(sock_w, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+		exit (2);
+	return (sock_w);
+}
+
+
+void message_processing(int sock, std::string &message, int sock_w)
+{
+	
 	if (message.find("PRIVMSG") == std::string::npos)
 		return ;
 	std::string name = extract_nick(message);
 	std::string msg = extract_msg(message);
-	// std::map<std::string, int > ::iterator it = names.find(name);
 	std::pair<std::map <std::string, int >::iterator,bool> ret;
 	ret = names.insert ( std::pair<std::string, int >(name, 1) );
 	if (ret.second==true) {
@@ -156,25 +193,28 @@ void message_processing(int sock, std::string &message)
 	}
 	if (ret.second==false) {
 		draw_msg(sock, name, "...🤔...\r\n");
-		std::string temp = msg.substr(0, msg.size() - 2);
-		std::string city = "curl wttr.in/" + temp + "?format=3 > weather";
-		std::cout << GREEN <<  city << SHALLOW << std::endl;
-		system(city.c_str());
-		std::string line;
 
-		std::ifstream in("weather"); // окрываем файл для чтения
-		if (in.is_open())
-		{
-			getline(in, line);
-			std::cout << "line: " << line << std::endl;
-			std::string newLine = ":" +line + "\r\n";
-			draw_msg(sock, name, newLine);
+		std::string place = msg.substr(0, msg.size() - 2);
+		char buf[1024];
+		memset(buf, 0, 1024);
+		std::string request = "GET /" + place + "?format=3 HTTP/1.1\nUser-Agent: curl/7.29.0\nHost: wttr.in\n\n";
+		std::cout << RED <<  "request: " << request <<  SHALLOW<< std::endl;
+		int status = send(sock_w, request.c_str(), request.length(), 0);
+		if (status != request.length()) {
+			std::cout << "Request error!\n";
+			return ;
 		}
-		in.close();
+		recv(sock_w, buf, 1024, 0);
+		std::cout << GREEN << "buf:" <<  buf << SHALLOW << std::endl;
+		std::string rezult = buf;
+		rezult.pop_back();
+		rezult = rezult.substr(rezult.find_last_of('\n') + 1, rezult.length());
+		std::cout << YELLOW << "result: " << rezult   <<  SHALLOW<< std::endl;
+		rezult += "\r\n";
+		draw_msg(sock, name, rezult);
 		draw_msg(sock, name, ":Please type the name of the \"city\" without white spaces. If you will JOKE with me, I will JOKE with you 🤡\r\n");
 	}
 }
-
 
 int main(int argc, char **argv)
 {
@@ -183,7 +223,6 @@ int main(int argc, char **argv)
 		std::cout << "Usage: ./bot <port> <password>" << std::endl;
 		exit (0);
 	}
-
 	int sock;
 	sockaddr_in server;
 	server.sin_family = AF_INET;
@@ -192,9 +231,12 @@ int main(int argc, char **argv)
 
 	int opt = 1;
 	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if(sock < 0)
+		return 1;
 	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
-	connect(sock, (sockaddr *)&server, sizeof(server));
-
+	if(connect(sock, (sockaddr *)&server, sizeof(server))< 0)
+		return 2;
+	
 	// fcntl(sock, F_SETFL, O_NONBLOCK);
 	auth(sock, std::string(argv[2]));
 	char buf[512];
@@ -203,17 +245,22 @@ int main(int argc, char **argv)
 	sock_sig = sock;
 	std::string message;
 	names.clear();
+
+	int sock_w = get_socket_weather();
 	while (work)
-	{	memset(buf, 0, 512);
+	{	
+		memset(buf, 0, 512);
 		message.clear();
-		if (recv(sock, buf, 512, 0) < 0)
+		if (recv(sock, buf, 512, 0) <= 0)
 		{
-			std::cout << "gg" << std::endl;
+			std::cout << "There is no connection to server"<< std::endl;//??????
 			break;
 		}
 		message = buf;
-		
-		message_processing(sock, message);
+		int ret;
+		message_processing(sock, message, sock_w);
 	}
+	close(sock_w);
+	close(sock);
 }
 
