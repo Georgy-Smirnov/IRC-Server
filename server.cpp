@@ -131,8 +131,8 @@ void Server::exit_channels(client_it client) {
 		if (it->find_nick_in_channel(client->get_nick())) {
 			it->send_in_channels(std::string(":" + client->str_for_irc() + " QUIT :Client exited\r\n"), client, false);
 			it->remove_from_channel(client->get_nick());
-			it->fix_addr_offset(&(*client));
 		}
+		it->fix_addr_offset(&(*client));
 	}
 	channel_it It = _channels.begin();
 	while (It != _channels.end())

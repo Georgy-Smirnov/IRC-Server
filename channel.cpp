@@ -125,6 +125,10 @@ void Channel::fix_addr_offset(Client *delete_addr) {
 		if (*it > delete_addr)
 			--(*it);
 	}
+	for (client_point_it it = _invite.begin(); it < _invite.end(); ++it) {
+		if (*it > delete_addr)
+			--(*it);
+	}
 }
 
 const std::string Channel::get_names_users() const {
