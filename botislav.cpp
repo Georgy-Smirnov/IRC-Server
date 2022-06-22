@@ -57,22 +57,22 @@ void auth(int sock, const std::string &pass)
 	}
 }
 
-
 void draw_hello(int sock, std::string const &name){
-	std::string s1("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
-	std::string s2("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█░░░░░░░█░░░░░░██████░░░░" + "\r\n");
-	std::string s3("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░" + "\r\n");
-	std::string s4("PRIVMSG " + name + " ░░░█████░░░░░████░░░░█░░░░░░░█░░░░░░░█░░░░█░░░░" + "\r\n");
-	std::string s5("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░" + "\r\n");
-	std::string s6("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█████░░█████░░░██████░░░" + "\r\n");
-	std::string s7("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
+	std::string s1("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
+	std::string s2("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█░░░░░░░█░░░░░░██████░░░░░░░░░" + "\r\n");
+	std::string s3("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░░░░░░" + "\r\n");
+	std::string s4("PRIVMSG " + name + " ░░░█████░░░░░████░░░░█░░░░░░░█░░░░░░░█░░░░█░░░░░░░░░" + "\r\n");
+	std::string s5("PRIVMSG " + name + " ░░░█░░░█░░░░░█░░░░░░░░█░░░░░░░█░░░░░░░█░░░░█░░░░░░░░" + "\r\n");
+	std::string s6("PRIVMSG " + name + " ░░░█░░░█░░░░░█████░░░░█████░░█████░░░██████░░░░░░░░░" + "\r\n");
+	std::string s7("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
 	
-	std::string s8("PRIVMSG " + name + " ██░░░░░██░███████░░█████░░████████░██░░░██░███████░██████░░" + "\r\n");
-	std::string s9("PRIVMSG " + name + " ██░░░░░██░██░░░░░░██░░░██░░░░██░░░░██░░░██░██░░░░░░██░░░██░" + "\r\n");
-	std::string s10("PRIVMSG " + name + " ██░░█░░██░█████░░░███████░░░░██░░░░███████░█████░░░██████░░" + "\r\n");
-	std::string s11("PRIVMSG " + name + " ██░███░██░██░░░░░░██░░░██░░░░██░░░░██░░░██░██░░░░░░██░░░██░" + "\r\n");
-	std::string s12("PRIVMSG " + name + " ░███░███░░███████░██░░░██░░░░██░░░░██░░░██░███████░██░░░██░" + "\r\n");
-	std::string s13("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
+	std::string s8("PRIVMSG " + name + " █░░░░░░░█░███████░░░████░░███████░░░░█░░░█░░░░██████░░░░█████░░░" + "\r\n");
+	std::string s9("PRIVMSG " + name + " █░░░░░░░█░█░░░░░░░░░█░░░█░░░░░█░░░░░░░░█░░░█░░░░█░░░░░░░░░█░░░░█░░" + "\r\n");
+	std::string s10("PRIVMSG " + name + " █░░░█░░░█░█████░░░░█████░░░░░█░░░░░░░░█████░░░░████░░░░░░████░░░░" + "\r\n");
+	std::string s11("PRIVMSG " + name + " █░░█░█░░█░█░░░░░░░░█░░░░█░░░░░█░░░░░░░░█░░░█░░░░█░░░░░░░░░█░░░░█░░" + "\r\n");
+	std::string s12("PRIVMSG " + name + " ░███░███░░███████░░█░░░█░░░░░█░░░░░░░░█░░░░█░░░██████░░░░█░░░░░█░░" + "\r\n");
+	std::string s13("PRIVMSG " + name + " ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░" + "\r\n");
+
 
 	send(sock, s1.c_str(), s1.length(), 0);
 	send(sock, s2.c_str(), s2.length(), 0);
@@ -92,9 +92,7 @@ void draw_hello(int sock, std::string const &name){
 
 void draw_msg(int sock, std::string const &name, std::string const &msg)
 {
-	// std::cout << "i draw msg" << std::endl;
 	std::string s1("PRIVMSG " + name + " " + msg);
-	// std::cout << msg << std::endl;
 	send(sock, s1.c_str(), s1.length(), 0);
 }
 
@@ -149,65 +147,32 @@ void message_processing(int sock, std::string &message)
 		return ;
 	std::string name = extract_nick(message);
 	std::string msg = extract_msg(message);
-	// draw_tree(sock, name);
-	std::map<std::string, int > ::iterator it = names.find(name);
+	// std::map<std::string, int > ::iterator it = names.find(name);
 	std::pair<std::map <std::string, int >::iterator,bool> ret;
 	ret = names.insert ( std::pair<std::string, int >(name, 1) );
 	if (ret.second==true) {
 		draw_hello(sock, name);
-		draw_msg(sock, name, ":Hello, my friend! I can predict a weather. You shoud type the name of the \"city\"\r\n");
+		draw_msg(sock, name, ":Hello, my friend! 😀 I am a weather bot. I can tell you the WEATHER. ☂ You shoud type the name of the \"city\" withour white spaces. If you will JOKE with me, I will JOKE with you 🤡\r\n");
 	}
-	// if(it != names.end() ){
-	// 	names.insert(name);
-	// }
 	if (ret.second==false) {
-		draw_msg(sock, name, ":I am a weather bot. I can predict a weather. You shoud type the name of the \"city\" without white spaces. If you will JOKE with me, I will JOKE with you :)\r\n");
+		draw_msg(sock, name, "...🤔...\r\n");
+		std::string temp = msg.substr(0, msg.size() - 2);
+		std::string city = "curl wttr.in/" + temp + "?format=3 > weather";
+		std::cout << GREEN <<  city << SHALLOW << std::endl;
+		system(city.c_str());
+		std::string line;
+
+		std::ifstream in("weather"); // окрываем файл для чтения
+		if (in.is_open())
+		{
+			getline(in, line);
+			std::cout << "line: " << line << std::endl;
+			std::string newLine = ":" +line + "\r\n";
+			draw_msg(sock, name, newLine);
+		}
+		in.close();
+		draw_msg(sock, name, ":Please type the name of the \"city\" without white spaces. If you will JOKE with me, I will JOKE with you 🤡\r\n");
 	}
-	// if((msg.compare("weather\r\n")))
-	// 	draw_msg(sock, name, ":Oh, but I am not so smart. I dont't know what do you mean...\r\n");
-	// else
-	// {
-		// if(msg.)
-
-			std::string temp = msg.substr(0, msg.size() - 2);
-			std::string city = "curl wttr.in/" + temp + "?format=3 > weather";
-			std::cout << GREEN <<  city << SHALLOW << std::endl;
-			system(city.c_str());
-			std::string line;
-
-			std::ifstream in("weather"); // окрываем файл для чтения
-			if (in.is_open())
-			{
-				// for(int i = 0; i < 2; ++i){
-					getline(in, line);
-					std::cout << "line: " << line << std::endl;
-					std::string newLine = ":" +line + "\r\n";
-					draw_msg(sock, name, newLine);
-					// line.erase();
-				// }
-				// for(int i = 0; i < 1; i++)
-				// {
-				// 	getline(in, line);
-				// 	// std::size_t found = line.find_first_of("abcdefghijklmnopqrstuvwxyz1234567890");
-				// 	// std::cout <<found << std::endl;
-				// 	std::string newLine = line.substr(31, line.size() - 31);
-				// 	newLine = ":" + newLine + "\r\n";
-				// 	std::cout << newLine << std::endl;
-				// 	draw_msg(sock, name, newLine);
-				// 	newLine.erase();
-				// }
-			}
-			in.close();
-		// draw_msg(sock, name, ":curl wttr.in\r\n");
-	// }
-	// draw_msg(sock, name, ":Hello, my friend! I can predict a weather. You shoud type \"weather\"\r\n");
-	// std::cout << "MP start\n";
-	// if(!(msg.compare("weather\r\n")))
-	// 	draw_msg(sock, name, ":Because it is summer now. Everything pointed to a few days of fine summer weather.\r\n");
-	// else{
-	// 	draw_msg(sock, name, ":Oh, but I am not so smart. I dont't know what do you mean...\r\n");
-	// }
-
 }
 
 
@@ -219,7 +184,6 @@ int main(int argc, char **argv)
 		exit (0);
 	}
 
-	std::cout << "I am here" << std::endl;
 	int sock;
 	sockaddr_in server;
 	server.sin_family = AF_INET;
@@ -231,7 +195,6 @@ int main(int argc, char **argv)
 	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
 	connect(sock, (sockaddr *)&server, sizeof(server));
 
-	std::cout << "I am here" << std::endl;
 	// fcntl(sock, F_SETFL, O_NONBLOCK);
 	auth(sock, std::string(argv[2]));
 	char buf[512];
@@ -251,7 +214,6 @@ int main(int argc, char **argv)
 		message = buf;
 		
 		message_processing(sock, message);
-		// std::cout << buf << std::endl;
 	}
 }
 
