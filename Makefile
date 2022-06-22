@@ -44,11 +44,11 @@ BOT_NAME	=	bot
 all:		${NAME}
 
 ${NAME}:	${OBJS}
-			@${CLANG} ${CFLAG} -o ${NAME} ${OBJS} ${LIB_HEAD}
+			@${CLANG} ${CFLAG} -o ${NAME} ${OBJS}
 			@printf "\033[2K\r${_GREEN} IRCserv create: '${NAME}'. ${_END}✅\n"
 
 bot:		${BOT_OBJS}
-			@${CLANG} ${CFLAG} -o ${BOT_NAME} ${OBJS} ${LIB_HEAD}
+			@${CLANG} ${CFLAG} -o ${BOT_NAME} ${BOT_OBJS}
 			@printf "\033[2K\r${_GREEN} BOT create: '${BOT_NAME}'. ${_END}✅\n"
 
 #===========================>COMPILED_SOURCES_RULES<===========================#

@@ -58,7 +58,7 @@ short Channel::put_in_mode(std::string& m, client_const_it it) {
 		}
 	}
 	else
-		return 3;
+		return 0;
 	return 0;
 }
 
