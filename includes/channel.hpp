@@ -7,6 +7,7 @@
 class Channel {
 public:
 	typedef std::vector<Client>::const_iterator client_const_it;
+	typedef std::vector<const Client*>::iterator client_point_it;	
 	typedef std::vector<const Client*>::const_iterator client_const_point_it;
 private:
 	std::string					_name;
@@ -28,6 +29,7 @@ public:
 	void put_invite(client_const_it it);
 	void erase_invite(client_const_it it);
 	bool find_invite(client_const_it it);
+	void fix_addr_offset(Client *delete_addr);
 
 	const std::string get_names_users() const;
 	const std::string& get_name_channel() const;

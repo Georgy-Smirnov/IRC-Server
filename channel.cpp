@@ -12,18 +12,13 @@ void Channel::add_in_channel(client_const_it& it) {
 void Channel::remove_from_channel(const std::string &name) {
 	client_const_point_it It = _clients.begin();
 	client_const_point_it Ite = _clients.end();
-	for ( ; It != Ite; ++It)
-	{
+	for ( ; It != Ite; ++It) {
 		if ((*It)->get_nick() == name)
 			break ;
 	}
-	std::cout << _clients[0] << "_" << &_clients[0] << std::endl;
-	if (It != Ite)
-	{
+	if (It != Ite) {
 		_clients.erase(It);
-		// std::cout << (*It)->get_nick() << " left channel" << std::endl;
 	}
-	std::cout << _clients[0] << "_" << &_clients[0] << std::endl;
 }
 
 void Channel::send_in_channels(std::string str, client_const_it it, bool ret_message) {
@@ -123,6 +118,13 @@ bool Channel::find_invite(client_const_it it) {
 		}
 	}
 	return false;
+}
+
+void Channel::fix_addr_offset(Client *delete_addr) {
+	for (client_point_it it = _clients.begin(); it < _clients.end(); ++it) {
+		if (*it > delete_addr)
+			--(*it);
+	}
 }
 
 const std::string Channel::get_names_users() const {

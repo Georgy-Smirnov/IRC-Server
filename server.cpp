@@ -126,20 +126,12 @@ void Server::add_in_channel(std::string &name, client_const_it it) {
 	get_chanel(name)->add_in_channel(it);
 }
 
-// :a!a@127.0.0.1 QUIT :Client exited
-// rphoebe!rphoebe@127.0.0.1 QUIT :Client exited
-// :rphoebe!rphoebe@127.0.0.1 JOIN :#1
-void Server::exit_channels(client_it client)
-{
-	channel_it It = _channels.begin();
-	channel_it Ite = _channels.end();
-
-	for ( ; It != Ite; ++It)
-	{
-		if (It->find_nick_in_channel(client->get_nick()))
-		{
-			It->send_in_channels(std::string(":" + client->str_for_irc() + " QUIT :Client exited\r\n"), client, false);
-			It->remove_from_channel(client->get_nick());
+void Server::exit_channels(client_it client) {
+	for (channel_it it = _channels.begin(); it != _channels.end(); ++it) {
+		if (it->find_nick_in_channel(client->get_nick())) {
+			it->send_in_channels(std::string(":" + client->str_for_irc() + " QUIT :Client exited\r\n"), client, false);
+			it->remove_from_channel(client->get_nick());
+			it->fix_addr_offset(&(*client));
 		}
 	}
 }
@@ -183,7 +175,6 @@ void Server::new_client() {
 	if (new_socket == -1)
 		exit(5);
 	_clients.push_back(Client(new_socket, client));
-
 	std::cout << "New client: IP " << inet_ntoa(client.sin_addr) << " PORT: " << ntohs(client.sin_port) << std::endl;
 
 }

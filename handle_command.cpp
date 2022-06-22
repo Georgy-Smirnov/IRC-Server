@@ -261,7 +261,6 @@ void Handle_command::join() {
 	std::string one = _parametrs[0];
 	while (one.size()) {
 		std::string tmp = one.substr(0, one.find(','));
-		std::cout << tmp << "____________\n";
 		if (tmp.front() != '#') {
 			sendd(_it->get_socket(), put_in_answer(" 401 " + tmp + ERR_NOSUCHCHANNEL));
 			return;
@@ -298,7 +297,6 @@ void Handle_command::part() {
 			continue;
 		}
 		else {
-			std::cout << _server->get_chanel(tmp)->get_names_users() << std::endl;
 			if (_server->get_chanel(tmp)->get_names_users().find(_it->get_nick()) == std::string::npos)
 			{
 				sendd(_it->get_socket(), put_in_answer(" 442 " + tmp + ERR_NOTONCHANNEL));
@@ -366,7 +364,6 @@ void Handle_command::mode() {
 		return;
 	}
 	if (_parametrs.size() == 2) {
-		std::cout << &(*_it) << " WTF???\n";
 		short status = _server->get_chanel(_parametrs[0])->put_in_mode(_parametrs[1], _it);
 		switch (status)
 		{
@@ -486,7 +483,6 @@ void Handle_command::list(void) {
 		return;
 	}
 	for (size_t i = 0; i < _server->count_channels(); ++i) {
-		std::cout << _server->count_channels() << std::endl;
 		Channel& tmp = _server->return_channel(i);
 		sendd(_it->get_socket(), put_in_answer(" 322 " + _it->get_nick() + " " + tmp.get_name_channel() + " " + std::to_string(tmp.get_count_users()) + " :" + tmp.get_topic() + "\r\n"));
 	}
