@@ -1,5 +1,5 @@
-#include "includes/channel.hpp"
-#include "includes/message.hpp"
+#include "../includes/channel.hpp"
+#include "../includes/message.hpp"
 
 Channel::Channel(std::string& name, client_const_it& it) : _name(name), _topic(std::string()), _mode(std::string()) {
 	_clients.push_back(&(*it));

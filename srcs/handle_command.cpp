@@ -1,5 +1,5 @@
-#include "includes/handle_command.hpp"
-#include "includes/message.hpp"
+#include "../includes/handle_command.hpp"
+#include "../includes/message.hpp"
 
 Handle_command::Handle_command(std::vector<Client>::iterator &i, std::string comm, Server* s) : _server(s), _it(i) {
 	char rem = ' ';

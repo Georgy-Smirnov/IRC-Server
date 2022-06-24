@@ -8,10 +8,9 @@ _END		=	\e[0m
 #==================================>FILES<=====================================#
 
 SRCS		=	main.cpp \
-				channel.cpp \
-				client.cpp \
-				handle_command.cpp \
-				server.cpp
+				srcs/channel.cpp \
+				srcs/handle_command.cpp \
+				srcs/server.cpp
 
 SRCS_BOT	=	botislav.cpp
 
@@ -19,7 +18,7 @@ SRCS_BOT	=	botislav.cpp
 
 CLANG		=	clang++
 
-CFLAGS		=	-Wall -Werror -Wextra -g -fsanitize=address 
+CFLAGS		=	-Wall -Werror -Wextra
 
 #===================================>DELETE<===================================#
 
